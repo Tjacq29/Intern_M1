@@ -1,3 +1,8 @@
+<?php
+session_start();
+$isLoggedIn = isset($_SESSION['user_id']);
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,11 +10,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Student Finance Assistant</title>
 
-  <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <!-- Bootstrap Icons -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
-  <!-- Custom CSS -->
   <link rel="stylesheet" href="../css/style.css">
 </head>
 
@@ -18,10 +20,12 @@
   <!-- HEADER -->
   <header class="bg-white shadow-sm py-2">
     <div class="container-fluid d-flex align-items-center justify-content-between">
-      <h1 class="h3 mb-0 text-dark fw-bold">Student Finance Assistant</h1>
-      <div class="d-flex align-items-center">
-        <a href="login.html" class="btn btn-outline-primary big-btn me-2">Login</a>
-        <a href="signup.html" class="btn btn-primary big-btn me-3">Sign Up</a>
+    <h1 class="h3 mb-0 text-dark fw-bold">Student Finance Assistant</h1>
+    <div class="d-flex align-items-center">
+        <?php if (!$isLoggedIn): ?>
+          <a href="login.html" class="btn btn-outline-primary btn-sm me-2">Login</a>
+          <a href="signup.html" class="btn btn-primary btn-sm me-3">Sign Up</a>
+        <?php endif; ?>
         <a href="#" class="d-block">
           <img src="https://cdn-icons-png.flaticon.com/512/847/847969.png" alt="Profile" class="rounded-circle" width="50" height="50">
         </a>
@@ -29,9 +33,11 @@
     </div>
   </header>
 
+  <!-- SIDEBAR + MAIN -->
   <div class="d-flex flex-grow-1">
+    <!-- Sidebar -->
     <nav class="d-flex flex-column flex-shrink-0 bg-white border-end p-3" style="width: 200px;">
-      <ul class="nav nav-pills flex-column mb-auto text-start">
+    <ul class="nav nav-pills flex-column mb-auto text-start">
         <li class="nav-item mb-2">
           <a href="#" class="nav-link active py-3 d-flex align-items-center">
             <i class="bi bi-house fs-2 me-2"></i> Home

@@ -9,10 +9,7 @@ body {
     background-color: rgba(13, 110, 253, 0.1);
     border-radius: 0.375rem;
   }
-  
-  img.rounded-circle {
-    border-radius: 50%;
-  }
+
   
   .bg-hero {
     background: url('../png/banner.png') no-repeat center center;
@@ -37,9 +34,24 @@ body {
   
   h1, h4 {
     color: #f8f9fa;
+    
   }
   
   .btn {
     border-radius: 0.5rem;
+  }
+  .nav-link i {
+    font-size: 1.5rem; /* larger than Bootstrap fs-5 default */
+  }
+  
+  img.rounded-circle {
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+  }
+  .app-title {
+    font-size: 1.75rem; /* or 2rem, or whatever you want */
+    color: #343a40; /* dark grey */
+    font-weight: 700;
   }
   
