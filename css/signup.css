@@ -1,0 +1,22 @@
+/* signup.css */
+body {
+    font-family: 'Segoe UI', sans-serif;
+  }
+  
+  .form-signup {
+    width: 100%;
+    max-width: 380px;
+    padding: 15px;
+  }
+  
+  .form-signup .form-floating:focus-within {
+    z-index: 2;
+  }
+  
+  .form-signup input[type="text"],
+  .form-signup input[type="email"],
+  .form-signup input[type="password"] {
+    margin-bottom: -1px;
+    border-radius: 0.375rem;
+  }
+  

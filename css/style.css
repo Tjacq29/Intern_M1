@@ -1,0 +1,45 @@
+/* style.css */
+
+body {
+    font-family: 'Segoe UI', sans-serif;
+    background: #f8f9fa;
+  }
+  
+  .nav-link:hover {
+    background-color: rgba(13, 110, 253, 0.1);
+    border-radius: 0.375rem;
+  }
+  
+  img.rounded-circle {
+    border-radius: 50%;
+  }
+  
+  .bg-hero {
+    background: url('../png/banner.png') no-repeat center center;
+    background-size: cover;
+    position: relative;
+  }
+  
+  .bg-hero::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.4); /* Dark transparent overlay */
+  }
+  
+  .bg-hero > div {
+    position: relative;
+    z-index: 1;
+  }
+  
+  h1, h4 {
+    color: #f8f9fa;
+  }
+  
+  .btn {
+    border-radius: 0.5rem;
+  }
+  
