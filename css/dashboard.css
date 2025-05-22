@@ -1,0 +1,24 @@
+body {
+    font-family: 'Segoe UI', sans-serif;
+    background-color: #f8f9fa;
+    text-align: center;
+    padding: 2rem;
+  }
+  
+  .container {
+    max-width: 700px;
+    margin: auto;
+  }
+  
+  select {
+    padding: 0.5rem;
+    margin-bottom: 1.5rem;
+  }
+ 
+  .form-select {
+    max-width: 250px;
+  }
+  .chart-container {
+    max-width: 800px;
+    margin: auto;
+  }

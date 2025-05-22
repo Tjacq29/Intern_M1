@@ -54,4 +54,19 @@ body {
     color: #343a40; /* dark grey */
     font-weight: 700;
   }
+  .nav-link {
+    color: #333;
+    border-radius: 10px;
+    transition: background-color 0.3s ease;
+  }
+  
+  .nav-link:hover {
+    background-color: #e9f0ff; /* or use the same color as index */
+    color: #0d6efd;
+  }
+  
+  .nav-link.active {
+    background-color: #0d6efd;
+    color: #fff;
+  }
   
