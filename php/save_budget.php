@@ -2,52 +2,72 @@
 session_start();
 header('Content-Type: application/json');
 
-// Check if user is logged in
+require_once 'config.php';
+
 if (!isset($_SESSION['user_id'])) {
-    echo json_encode(['success' => false, 'message' => 'User not logged in']);
+    echo json_encode(["success" => false, "message" => "User not logged in."]);
     exit;
 }
-
-require_once 'config.php'; // Make sure this includes $pdo connection
 
 $userId = $_SESSION['user_id'];
 
-// Collect POST data safely
+// Sanitize and collect form data
 $monthlyBudget = $_POST['monthlyBudget'] ?? null;
-$university     = $_POST['university'] ?? null;
-$housing        = $_POST['housing'] ?? null;
-$transport      = $_POST['transport'] ?? null;
-$activity       = $_POST['activity'] ?? null;
-$activityCost   = $_POST['activityCost'] ?? 0;
+$university = $_POST['university'] ?? null;
+$housing = $_POST['housing'] ?? null;
+$housingCost = $_POST['housingCost'] ?? null;
+$transport = $_POST['transport'] ?? null;
+$transportCost = $_POST['transportCost'] ?? null;
+$activity = $_POST['activity'] ?? null;
+$activityCost = $_POST['activityCost'] ?? null;
+$savings = $_POST['savings'] ?? null;
+$customLabels = $_POST['customLabel'] ?? [];
+$customValues = $_POST['customValue'] ?? [];
 
-// Basic validation
-if (!$monthlyBudget || !$university || !$housing || !$transport || !$activity) {
-    echo json_encode(['success' => false, 'message' => 'Missing required fields']);
-    exit;
+// Calculate total of custom expenses
+$customExpenseTotal = 0;
+if (is_array($customValues)) {
+    foreach ($customValues as $value) {
+        $customExpenseTotal += (int)$value;
+    }
 }
 
 try {
-    // Check if the user already has a budget entry
-    $check = $pdo->prepare("SELECT id FROM user_budget WHERE user_id = ?");
-    $check->execute([$userId]);
+    // Insert or update main budget info
+    $stmt = $pdo->prepare("REPLACE INTO budget (
+        user_id, monthly_budget, university, housing, housing_cost, transport, transport_cost, activity, activity_cost, savings, custom_expense_total
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
-    if ($check->rowCount() > 0) {
-        // Update existing
-        $update = $pdo->prepare("UPDATE user_budget SET 
-            monthly_budget = ?, university = ?, housing = ?, transport = ?, activity = ?, activity_cost = ?
-            WHERE user_id = ?");
-        $update->execute([$monthlyBudget, $university, $housing, $transport, $activity, $activityCost, $userId]);
-    } else {
-        // Insert new
-        $insert = $pdo->prepare("INSERT INTO user_budget 
-            (user_id, monthly_budget, university, housing, transport, activity, activity_cost)
-            VALUES (?, ?, ?, ?, ?, ?, ?)");
-        $insert->execute([$userId, $monthlyBudget, $university, $housing, $transport, $activity, $activityCost]);
+    $stmt->execute([
+        $userId,
+        $monthlyBudget,
+        $university,
+        $housing,
+        $housingCost,
+        $transport,
+        $transportCost,
+        $activity,
+        $activityCost,
+        $savings,
+        $customExpenseTotal
+    ]);
+
+    // Clear old custom expenses
+    $pdo->prepare("DELETE FROM custom_expenses WHERE user_id = ?")->execute([$userId]);
+
+    // Insert new custom expenses
+    if (is_array($customLabels) && is_array($customValues)) {
+        $insertStmt = $pdo->prepare("INSERT INTO custom_expenses (user_id, label, cost) VALUES (?, ?, ?)");
+        for ($i = 0; $i < count($customLabels); $i++) {
+            $label = trim($customLabels[$i]);
+            $cost = (int)$customValues[$i];
+            if ($label !== '' && $cost > 0) {
+                $insertStmt->execute([$userId, $label, $cost]);
+            }
+        }
     }
 
-    echo json_encode(['success' => true]);
-
+    echo json_encode(["success" => true]);
 } catch (PDOException $e) {
-    echo json_encode(['success' => false, 'message' => 'Database error: ' . $e->getMessage()]);
+    echo json_encode(["success" => false, "message" => $e->getMessage()]);
 }
-?>
