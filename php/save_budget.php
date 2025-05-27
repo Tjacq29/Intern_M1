@@ -52,20 +52,22 @@ try {
         $customExpenseTotal
     ]);
 
-    // Clear old custom expenses
+    // Clear previous
     $pdo->prepare("DELETE FROM custom_expenses WHERE user_id = ?")->execute([$userId]);
 
-    // Insert new custom expenses
+    // Insert new
     if (is_array($customLabels) && is_array($customValues)) {
-        $insertStmt = $pdo->prepare("INSERT INTO custom_expenses (user_id, label, cost) VALUES (?, ?, ?)");
+        $stmt = $pdo->prepare("INSERT INTO custom_expenses (user_id, label, cost) VALUES (?, ?, ?)");
         for ($i = 0; $i < count($customLabels); $i++) {
             $label = trim($customLabels[$i]);
             $cost = (int)$customValues[$i];
-            if ($label !== '' && $cost > 0) {
-                $insertStmt->execute([$userId, $label, $cost]);
+            if ($label && $cost > 0) {
+                $stmt->execute([$userId, $label, $cost]);
             }
         }
     }
+
+
 
     echo json_encode(["success" => true]);
 } catch (PDOException $e) {

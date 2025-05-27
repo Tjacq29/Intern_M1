@@ -14,45 +14,36 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const { budget, customExpenses } = result;
 
+    console.log("Budget:", budget);
+    console.log("Custom Expenses:", customExpenses);
+
     const labels = [];
     const values = [];
-    const colors = [
-      "#3b82f6", "#f97316", "#16a34a", "#facc15", "#8b5cf6", "#ef4444", "#10b981", "#a855f7", "#f472b6", "#fb923c"
-    ];
+    const colors = [];
 
-    if (budget.housingCost > 0) {
-      labels.push("Housing");
-      values.push(budget.housingCost);
+    function addItem(label, value) {
+      if (value && value > 0) {
+        labels.push(label);
+        values.push(value);
+        colors.push(getRandomColor());
+      }
     }
 
-    if (budget.transportCost > 0) {
-      labels.push("Transport");
-      values.push(budget.transportCost);
-    }
+    addItem("Housing", budget.housingCost);
+    addItem("Transport", budget.transportCost);
+    addItem("Activity", budget.activityCost);
+    addItem("Savings", budget.savings);
 
-    if (budget.activityCost > 0) {
-      labels.push("Activity");
-      values.push(budget.activityCost);
-    }
-
-    if (budget.savings > 0) {
-      labels.push("Savings");
-      values.push(budget.savings);
-    }
-
-    customExpenses.forEach((item) => {
+    customExpenses.forEach(item => {
       if (item.label && item.cost > 0) {
-        labels.push(item.label);
-        values.push(parseInt(item.cost));
+        addItem(item.label, parseInt(item.cost));
       }
     });
 
-    // ✅ Destroy previous chart if it exists
-    if (chartInstance !== null) {
-      chartInstance.destroy();
-    }
+    // Destroy previous chart if needed
+    if (chartInstance) chartInstance.destroy();
 
-    // ✅ Create new chart
+    // Build chart
     chartInstance = new Chart(ctx, {
       type: "pie",
       data: {
@@ -87,3 +78,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     alert("Error loading chart data");
   }
 });
+
+// Simple color generator
+function getRandomColor() {
+  const colors = [
+    "#3b82f6", "#f97316", "#16a34a", "#facc15",
+    "#8b5cf6", "#ef4444", "#10b981", "#a855f7",
+    "#f472b6", "#fb923c", "#4ade80", "#fcd34d"
+  ];
+  return colors[Math.floor(Math.random() * colors.length)];
+}
