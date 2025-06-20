@@ -2,139 +2,110 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Monthly Budget Setup</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Monthly Budget</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="../css/budget.css">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-<body class="bg-light">
-  <div class="container mt-5 mb-5">
-    <h2 class="text-center mb-4">Monthly Budget Setup</h2>
-    <form id="budgetForm" class="p-4 bg-white rounded shadow-sm">
+<body class="d-flex flex-column vh-100 bg-light">
 
-      <!-- Step 1 -->
-      <div class="form-step" id="step-1">
-        <div class="mb-3">
-          <label for="monthlyBudget" class="form-label">Enter your monthly budget (in local currency)</label>
-          <input type="number" id="monthlyBudget" name="monthlyBudget" class="form-control" required>
-        </div>
-        <div class="text-end">
-          <button type="button" class="btn btn-primary" onclick="nextStep()">Next</button>
+  <div class="d-flex flex-column flex-grow-1">
+
+    <!-- HEADER -->
+    <header class="py-2 shadow-sm">
+      <div class="container-fluid d-flex align-items-center justify-content-between">
+        <h1 class="h3 mb-0 fw-bold">Student Finance Assistant</h1>
+        <div class="d-flex align-items-center">
+          <div class="dropdown">
+            <a href="#" class="d-block link-dark text-decoration-none dropdown-toggle" id="userMenu" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="bi bi-person-circle fs-1 text-dark"></i>
+            </a>
+            <ul class="dropdown-menu text-small dropdown-menu-end" aria-labelledby="userMenu">
+              <li><a class="dropdown-item" href="profile.php">Profile</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item" href="../php/logout.php">Logout</a></li>
+            </ul>
+          </div>
         </div>
       </div>
+    </header>
 
-      <!-- Step 2 -->
-      <div class="form-step d-none" id="step-2">
-        <div class="mb-3">
-          <label for="university" class="form-label">Select your university</label>
-          <select id="university" name="university" class="form-select" required>
-            <option selected disabled value="">-- Select University --</option>
-            <option value="ISEN Brest">ISEN Brest</option>
-            <option value="BINUS Jakarta">BINUS Jakarta</option>
+    <!-- MAIN LAYOUT -->
+    <div class="d-flex flex-grow-1" style="min-height: 0;">
+      <!-- SIDEBAR -->
+      <nav class="sidebar">
+        <ul class="nav nav-pills flex-column mb-auto text-start">
+          <li class="mb-2">
+            <a href="index.php" class="nav-link d-flex align-items-center">
+              <i class="bi bi-house fs-2 me-2"></i> Home
+            </a>
+          </li>
+          <li class="mb-2">
+            <a href="dashboard.html" class="nav-link d-flex align-items-center">
+              <i class="bi bi-speedometer2 fs-2 me-2"></i> Dashboard
+            </a>
+          </li>
+          <li class="mb-2">
+            <a href="budget.html" class="nav-link active d-flex align-items-center">
+              <i class="bi bi-table fs-2 me-2"></i> Budget
+            </a>
+          </li>
+          <li class="mb-2">
+            <a href="expenses.html" class="nav-link d-flex align-items-center">
+              <i class="bi bi-grid-3x3-gap fs-2 me-2"></i> Expenses
+            </a>
+          </li>
+          <li class="mb-2">
+            <a href="profile.php" class="nav-link d-flex align-items-center">
+              <i class="bi bi-person fs-2 me-2"></i> Profile
+            </a>
+          </li>
+        </ul>
+      </nav>
+
+      <!-- Main Content -->
+      <main class="flex-grow-1 p-4">
+        <h2 class="text-center mb-4">Fill Your Monthly Budget</h2>
+
+        <div class="mb-4">
+          <label for="monthlyBudget" class="form-label">Monthly Budget (Total)</label>
+          <input type="number" id="monthlyBudget" class="form-control" placeholder="Enter your total monthly budget" />
+        </div>
+
+        <table class="table align-middle">
+          <thead class="text-center">
+            <tr>
+              <th>Expense Label</th>
+              <th>Amount</th>
+              <th>Fixed?</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="expenseTableBody"></tbody>
+        </table>
+
+        <div class="text-center my-4">
+          <button id="addExpenseBtn" class="btn btn-outline-primary">Add Expense</button>
+          <button id="saveBudgetBtn" class="btn btn-success ms-2">Save Budget</button>
+        </div>
+
+        <div class="text-center mb-4">
+          <label for="chartType" class="form-label fw-semibold">Choose Graph Type:</label>
+          <select class="form-select w-auto d-inline-block" id="chartType">
+            <option value="pie" selected>Pie Chart</option>
+            <option value="bar">Bar Chart</option>
+            <option value="line">Line Chart</option>
+            <option value="doughnut">Doughnut Chart</option>
           </select>
         </div>
-        <div class="d-flex justify-content-between">
-          <button type="button" class="btn btn-secondary" onclick="prevStep()">Back</button>
-          <button type="button" class="btn btn-primary" onclick="nextStep()">Next</button>
-        </div>
-      </div>
 
-      <!-- Step 3 -->
-      <div class="form-step d-none" id="step-3">
-        <div class="mb-3">
-          <label for="housing" class="form-label">Where do you live?</label>
-          <select id="housing" name="housing" class="form-select" required>
-            <option selected disabled value="">-- Select Housing --</option>
-            <option value="Apartment">Apartment</option>
-            <option value="Flat sharing">Flat sharing</option>
-            <option value="Family Home">Family Home</option>
-            <option value="BINUS Hall of Residence">BINUS Hall of Residence</option>
-          </select>
+        <div class="budget-chart-container">
+          <canvas id="budgetChart"></canvas>
         </div>
-        <div class="mb-3">
-          <label for="housingCost" class="form-label">How much do you pay for housing monthly?</label>
-          <input type="number" id="housingCost" name="housingCost" class="form-control">
-        </div>
-        <div class="d-flex justify-content-between">
-          <button type="button" class="btn btn-secondary" onclick="prevStep()">Back</button>
-          <button type="button" class="btn btn-primary" onclick="nextStep()">Next</button>
-        </div>
-      </div>
-
-      <!-- Step 4 -->
-      <div class="form-step d-none" id="step-4">
-        <div class="mb-3">
-          <label for="transport" class="form-label">How do you go to university?</label>
-          <select id="transport" name="transport" class="form-select" required>
-            <option selected disabled value="">-- Select Transport --</option>
-            <option value="Foot">Foot</option>
-            <option value="Bike">Bike</option>
-            <option value="Car">Car</option>
-            <option value="Bus">Bus</option>
-            <option value="Scooter">Scooter</option>
-            <option value="Grab">Grab</option>
-            <option value="Public Transport">Public Transport</option>
-            <option value="Shuttle">Shuttle</option>
-          </select>
-        </div>
-        <div class="mb-3">
-          <label for="transportCost" class="form-label">Monthly transport cost</label>
-          <input type="number" id="transportCost" name="transportCost" class="form-control">
-        </div>
-        <div class="d-flex justify-content-between">
-          <button type="button" class="btn btn-secondary" onclick="prevStep()">Back</button>
-          <button type="button" class="btn btn-primary" onclick="nextStep()">Next</button>
-        </div>
-      </div>
-
-      <!-- Step 5 -->
-      <div class="form-step d-none" id="step-5">
-        <div class="mb-3">
-          <label for="activity" class="form-label">Do you practice a regular activity?</label>
-          <select id="activity" name="activity" class="form-select" required>
-            <option selected disabled value="">-- Select Activity --</option>
-            <option value="None">No</option>
-            <option value="Yes">Yes</option>
-          </select>
-        </div>
-        <div class="mb-3 d-none" id="activityCostGroup">
-          <label for="activityCost" class="form-label">Monthly cost of the activity</label>
-          <input type="number" id="activityCost" name="activityCost" class="form-control">
-        </div>
-        <div class="d-flex justify-content-between">
-          <button type="button" class="btn btn-secondary" onclick="prevStep()">Back</button>
-          <button type="button" class="btn btn-primary" onclick="nextStep()">Next</button>
-        </div>
-      </div>
-
-      <!-- Step 6 – Savings Goal -->
-      <div class="form-step d-none" id="step-6">
-        <div class="mb-3">
-          <label for="savings" class="form-label">How much would you like to save monthly?</label>
-          <input type="number" id="savings" name="savings" class="form-control" placeholder="e.g. 200000">
-        </div>
-        <div class="d-flex justify-content-between">
-          <button type="button" class="btn btn-secondary" onclick="prevStep()">Back</button>
-          <button type="button" class="btn btn-primary" onclick="nextStep()">Next</button>
-        </div>
-      </div>
-
-      <!-- Step 7 – Additional Custom Expenses -->
-    <div class="form-step d-none" id="step-7">
-      <div id="otherExpenses" class="mb-3">
-        <label class="form-label">Other Expenses</label>
-        <div class="d-flex gap-2 mb-2">
-          <input type="text" class="form-control" name="customLabel[]" placeholder="Expense name (e.g. Internet)" required>
-          <input type="number" class="form-control" name="customValue[]" placeholder="Amount (e.g. 150000)" required>
-        </div>
-      </div>
-      <button type="button" class="btn btn-outline-secondary mb-3" id="addOtherBtn">Add Another Expense</button>
-      <div class="d-flex justify-content-between">
-        <button type="button" class="btn btn-secondary" onclick="prevStep()">Back</button>
-        <button type="submit" class="btn btn-success">Submit</button>
-      </div>
+      </main>
     </div>
-    </form>
   </div>
 
   <script src="../js/budget.js"></script>

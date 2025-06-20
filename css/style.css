@@ -1,72 +1,405 @@
-/* style.css */
+/* GENERAL STRUCTURE */
+html, body {
+  height: 100%;
+  margin: 0;
+}
 
 body {
-    font-family: 'Segoe UI', sans-serif;
-    background: #f8f9fa;
-  }
-  
-  .nav-link:hover {
-    background-color: rgba(13, 110, 253, 0.1);
-    border-radius: 0.375rem;
-  }
+  font-family: 'Segoe UI', sans-serif;
+  background: url('../png/new-background.png') no-repeat center center fixed;
+  background-size: cover;
+  color: #212529;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
 
-  
-  .bg-hero {
-    background: url('../png/banner.png') no-repeat center center;
-    background-size: cover;
-    position: relative;
-  }
-  
-  .bg-hero::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.4); /* Dark transparent overlay */
-  }
-  
-  .bg-hero > div {
-    position: relative;
-    z-index: 1;
-  }
-  
-  h1, h4 {
-    color: #f8f9fa;
-    
-  }
-  
-  .btn {
-    border-radius: 0.5rem;
-  }
-  .nav-link i {
-    font-size: 1.5rem; /* larger than Bootstrap fs-5 default */
-  }
-  
-  img.rounded-circle {
-    border-radius: 50%;
-    width: 50px;
-    height: 50px;
-  }
-  .app-title {
-    font-size: 1.75rem; /* or 2rem, or whatever you want */
-    color: #343a40; /* dark grey */
-    font-weight: 700;
-  }
-  .nav-link {
-    color: #333;
-    border-radius: 10px;
-    transition: background-color 0.3s ease;
-  }
-  
-  .nav-link:hover {
-    background-color: #e9f0ff; /* or use the same color as index */
-    color: #0d6efd;
-  }
-  
-  .nav-link.active {
-    background-color: #0d6efd;
-    color: #fff;
-  }
-  
+/* White transparent blur overlay */
+body::after {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(176, 175, 175, 0.4);
+  backdrop-filter: blur(1.5px);
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* HEADER */
+header {
+  background-color: #a3b6c9;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+  color: white;
+  font-weight: bold;
+  letter-spacing: 2px;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+  margin-left: 0.5rem;
+}
+
+/* LAYOUT */
+.layout-wrapper {
+  display: flex;
+  flex-grow: 1;
+  min-height: 0;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* SIDEBAR */
+.sidebar {
+  width: 200px;
+  background-color: #a3b6c9;
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+  min-height: 100vh;
+}
+
+/* NAVIGATION LINKS */
+.nav-link {
+  color: #212529;
+  font-weight: 500;
+  border-radius: 0.5rem;
+  padding-left: 1rem;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.nav-link.active {
+  background-color: #0d6efd;
+  color: #fff !important;
+}
+
+.nav-link:hover {
+  background-color: #ced4da;
+  color: #0d6efd;
+}
+
+/* MAIN WRAPPER */
+.main-wrapper {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* MAIN CONTENT */
+main {
+  background-color: rgba(255, 255, 255, 0.85);
+  border-radius: 0; /* No rounded corners */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  padding: 2rem;
+  flex-grow: 1;
+}
+
+/* CARDS */
+.card {
+  border: none;
+  border-radius: 10px;
+  background-color: #f8f9fa;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+}
+
+.card-title {
+  font-weight: bold;
+  color: #343a40;
+}
+
+.card-text {
+  color: #6c757d;
+}
+
+/* BUTTONS */
+.btn {
+  border-radius: 0.5rem;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+}
+
+.btn-primary {
+  background-color: #0d6efd;
+  border: none;
+}
+
+.btn-primary:hover {
+  background-color: #0a58ca;
+}
+
+.btn-success {
+  background-color: #198754;
+  border: none;
+}
+
+.btn-success:hover {
+  background-color: #157347;
+}
+
+/* SELECT & CHART FORMATTING */
+.container {
+  max-width: 700px;
+  margin: auto;
+}
+
+select {
+  padding: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.form-select {
+  max-width: 250px;
+}
+
+.chart-container {
+  max-width: 800px;
+  margin: auto;
+}
+/* -------------------- BUDGET PAGE STYLES (refonte esthétique) -------------------- */
+
+/* Typographie et structure */
+h2, h4 {
+  font-weight: 700;
+  color: #1a202c;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+/* Labels */
+label {
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+/* Inputs */
+input[type="number"],
+input[type="text"] {
+  border-radius: 10px;
+  padding: 0.75rem 1rem;
+  border: 1px solid #ced4da;
+  background-color: #fff;
+  width: 100%;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+input:focus {
+  border-color: #0d6efd;
+  box-shadow: 0 0 0 0.1rem rgba(13, 110, 253, 0.25);
+  outline: none;
+}
+
+/* Table Styling */
+.table th {
+  background-color: #f1f3f5;
+  border: none;
+  font-weight: 600;
+  color: #343a40;
+}
+
+.table td {
+  border-top: none;
+  vertical-align: middle;
+}
+
+.table td input {
+  margin: 0;
+}
+
+/* Buttons */
+#addExpenseBtn {
+  display: inline-block;
+  margin: 1rem auto;
+  padding: 10px 20px;
+  font-weight: bold;
+  border: 2px solid #0d6efd;
+  color: #0d6efd;
+  background-color: transparent;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+#addExpenseBtn:hover {
+  background-color: #0d6efd;
+  color: #fff;
+}
+
+#saveBudgetBtn {
+  background-color: #198754;
+  color: white;
+  padding: 10px 30px;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+}
+
+#saveBudgetBtn:hover {
+  background-color: #157347;
+}
+
+button.btn-delete,
+button.btn-danger {
+  background-color: #dc3545;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-weight: bold;
+  font-size: 1rem;
+  color: #fff;
+  transition: background-color 0.2s ease;
+}
+
+button.btn-delete:hover {
+  background-color: #bb2d3b;
+}
+
+/* Chart */
+.budget-chart-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin: 3rem auto 2rem auto;
+  padding: 2rem;
+  background-color: #ffffffee;
+  border-radius: 16px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+  max-width: 700px;
+}
+
+.budget-chart-container canvas {
+  width: 100% !important;
+  max-width: 500px;
+  height: auto !important;
+  aspect-ratio: 1 / 1 !important;
+}
+
+/* Select dropdown */
+#chartType {
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  margin-top: 1rem;
+  font-weight: 500;
+}
+/* -------------------- EXPENSES PAGE SPECIFIC -------------------- */
+
+/* Typography */
+h2 {
+  font-weight: 700;
+  color: #1a202c;
+  margin-bottom: 1.5rem;
+}
+
+label {
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+}
+
+/* Form & Inputs */
+input[type="number"],
+input[type="text"],
+input[type="date"],
+select {
+  border-radius: 8px;
+  padding: 0.6rem;
+  border: 1px solid #ced4da;
+  background-color: #fff;
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
+/* Table styling */
+#expensesTable {
+  background-color: #fff;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  overflow: hidden;
+}
+
+#expensesTable th {
+  background-color: #e9ecef;
+  font-weight: 600;
+  text-align: left;
+  padding: 0.75rem;
+}
+.expense-fixed {
+  width: 1.2rem;
+  height: 1.2rem;
+  cursor: pointer;
+  accent-color: #0d6efd;
+}
+
+
+
+#expensesTable td {
+  padding: 0.75rem;
+  vertical-align: middle;
+  border-top: 1px solid #dee2e6;
+}
+
+/* Buttons */
+#addExpense,
+#saveExpenses {
+  padding: 10px 20px;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  margin: 10px 5px;
+}
+
+#addExpense {
+  background-color: #0d6efd;
+  color: white;
+}
+
+#addExpense:hover {
+  background-color: #0a58ca;
+}
+
+#saveExpenses {
+  background-color: #198754;
+  color: white;
+}
+
+#saveExpenses:hover {
+  background-color: #157347;
+}
+
+/* Chart container */
+.expense-chart-container {
+  background-color: #fff;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
+  margin-top: 2rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.expense-chart-container canvas {
+  width: 100% !important;
+  max-width: 500px;
+  height: auto !important;
+  aspect-ratio: 1 / 1 !important;
+}
+.table th,
+.table td {
+  vertical-align: middle;
+  text-align: center; /* Centrer horizontalement */
+}
+
+.table td:first-child,
+.table td:nth-child(2) {
+  text-align: left; /* Label et Amount restent alignés à gauche */
+}

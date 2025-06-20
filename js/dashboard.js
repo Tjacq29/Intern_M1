@@ -6,7 +6,7 @@ fetch("../php/get_user_info.php")
       headerButtons.innerHTML = `
         <div class="dropdown">
           <a href="#" class="d-block link-dark text-decoration-none dropdown-toggle" id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-            <img src="${data.profilePicture}" alt="Profile" class="rounded-circle" width="48" height="48">
+            <i class="bi bi-person-circle fs-3"></i>
           </a>
           <ul class="dropdown-menu dropdown-menu-end text-small" aria-labelledby="profileDropdown">
             <li><strong class="dropdown-item">${data.userName}</strong></li>
@@ -167,10 +167,11 @@ transportSelect.addEventListener("change", () => {
         },
         datalabels: {
         formatter: (value, context) => {
-            const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
-            const percentage = (value / total * 100);
-            return percentage === 0 ? null : `${percentage.toFixed(1)}%`;
-            },
+          const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+          const percentage = (value / total * 100);
+          return percentage === 0 ? null : `${percentage.toFixed(1)}%`;
+        },
+          
               
           color: '#fff',
           font: {
