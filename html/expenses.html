@@ -58,6 +58,11 @@
             </a>
           </li>
           <li class="mb-2">
+            <a href="financial_goals.html" class="nav-link d-flex align-items-center">
+              <i class="bi bi-flag fs-2 me-2"></i> Goal
+            </a>
+          </li>
+          <li class="mb-2">
             <a href="profile.php" class="nav-link d-flex align-items-center">
               <i class="bi bi-person fs-2 me-2"></i> Profile
             </a>
@@ -68,7 +73,10 @@
       <!-- MAIN -->
       <main class="flex-grow-1 p-4">
         <h2 class="text-center mb-4">Track Your Expenses</h2>
-
+        <div class="mb-3">
+          <label for="trackingMonth" class="form-label">Select Month</label>
+          <input type="month" class="form-control" id="trackingMonth" value="">
+        </div>
         <form id="expenseForm" class="row g-3 align-items-end mb-4">
           <div class="col-md-4">
             <label for="expenseDate" class="form-label">Date</label>
@@ -92,7 +100,12 @@
         <h4 class="mt-4">Expense History</h4>
         <table class="table table-hover mt-3">
           <thead class="table-light">
-            <tr><th>Date</th><th>Amount </th><th>Category</th></tr>
+            <tr>
+              <th>Date</th>
+              <th>Amount</th>
+              <th>Category</th>
+              <th>Actions</th>
+            </tr>
           </thead>
           <tbody id="expenseTableBody"></tbody>
         </table>
@@ -100,9 +113,48 @@
         <div class="budget-chart-container mt-5">
           <canvas id="expenseChart"></canvas>
         </div>
+        <div class="text-end mt-3">
+          <button id="transferToGoalBtn" class="btn btn-success">
+            Transfer to the GOAL
+          </button>
+        </div>
       </main>
     </div>
   </div>
+
+  <!-- Modal for transferring to Goal -->
+  <div class="modal fade" id="transferModal" tabindex="-1" aria-labelledby="transferModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form id="transferForm">
+          <div class="modal-header">
+            <h5 class="modal-title" id="transferModalLabel">Transfer to a Goal</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label for="goalSelect" class="form-label">Choose Goal</label>
+              <select class="form-select" id="goalSelect" required>
+                <option value="">-- Select a Goal --</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Categories to include (Spent)</label>
+              <div id="categoryCheckboxes"></div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Total amount to transfer</label>
+              <input type="text" class="form-control" id="totalTransfer" readonly>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-success">Transfer</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
   <script src="../js/expenses.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>

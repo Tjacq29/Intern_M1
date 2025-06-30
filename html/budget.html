@@ -12,7 +12,6 @@
 <body class="d-flex flex-column vh-100 bg-light">
 
   <div class="d-flex flex-column flex-grow-1">
-
     <!-- HEADER -->
     <header class="py-2 shadow-sm">
       <div class="container-fluid d-flex align-items-center justify-content-between">
@@ -58,6 +57,11 @@
             </a>
           </li>
           <li class="mb-2">
+            <a href="financial_goals.html" class="nav-link d-flex align-items-center">
+              <i class="bi bi-flag fs-2 me-2"></i> Goal
+            </a>
+          </li>
+          <li class="mb-2">
             <a href="profile.php" class="nav-link d-flex align-items-center">
               <i class="bi bi-person fs-2 me-2"></i> Profile
             </a>
@@ -68,17 +72,32 @@
       <!-- Main Content -->
       <main class="flex-grow-1 p-4">
         <h2 class="text-center mb-4">Fill Your Monthly Budget</h2>
+        <div class="mb-3">
+          <label for="budgetMonth" class="form-label">Select Month</label>
+          <input type="month" id="budgetMonth" name="budgetMonth">
+        </div>        
 
         <div class="mb-4">
           <label for="monthlyBudget" class="form-label">Monthly Budget (Total)</label>
           <input type="number" id="monthlyBudget" class="form-control" placeholder="Enter your total monthly budget" />
         </div>
 
-        <table class="table align-middle">
-          <thead class="text-center">
+        <!-- Currency -->
+        <div class="d-flex align-items-center gap-3 mb-3">
+          <label for="currencySelect" class="form-label mb-0">Currency:</label>
+          <select id="currencySelect" class="form-select w-auto">
+            <option value="€">€</option>
+            <option value="IDR">IDR</option>
+          </select>
+        </div>
+
+        <!-- Expense Table -->
+        <table class="table align-middle text-center">
+          <thead class="table-light">
             <tr>
               <th>Expense Label</th>
               <th>Amount</th>
+              <th>Percentage</th>
               <th>Fixed?</th>
               <th>Action</th>
             </tr>

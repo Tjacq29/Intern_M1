@@ -62,6 +62,11 @@ $isLoggedIn = isset($_SESSION['user_id']);
             </a>
           </li>
           <li class="mb-2">
+            <a href="financial_goals.html" class="nav-link d-flex align-items-center">
+              <i class="bi bi-flag fs-2 me-2"></i> Goal
+            </a>
+          </li>
+          <li class="mb-2">
             <a href="profile.php" class="nav-link d-flex align-items-center">
               <i class="bi bi-person fs-2 me-2"></i> Profile
             </a>
@@ -102,7 +107,7 @@ $isLoggedIn = isset($_SESSION['user_id']);
               <div class="card-body">
                 <h5 class="card-title">Financial Goals</h5>
                 <p class="card-text">Set and achieve your financial goals.</p>
-                <a href="set_goals.html" class="btn btn-primary">Set Goals</a>
+                <a href="../html/financial_goals.html" class="btn btn-primary">Set Goals</a>
               </div>
             </div>
           </div>

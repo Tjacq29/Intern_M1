@@ -403,3 +403,24 @@ select {
 .table td:nth-child(2) {
   text-align: left; /* Label et Amount restent alignés à gauche */
 }
+#gaugeSection, #goalsList .card {
+  background: rgba(255,255,255,0.92);
+  border-radius: 18px;
+  box-shadow: 0 6px 24px rgba(0,0,0,0.08);
+  padding: 2rem 1rem;
+  margin-bottom: 2rem;
+}
+
+#gaugeSection canvas,
+#goalsList canvas {
+  display: block;
+  margin: 0 auto;
+  max-width: 350px;
+  max-height: 180px;
+}
+
+#goalsList .card h5 {
+  font-weight: bold;
+  color: #198754;
+  margin-bottom: 1rem;
+}
