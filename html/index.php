@@ -62,6 +62,11 @@ $isLoggedIn = isset($_SESSION['user_id']);
             </a>
           </li>
           <li class="mb-2">
+            <a href="summary.html" class="nav-link d-flex align-items-center">
+              <i class="bi bi-bar-chart-line fs-2 me-2"></i> Summary
+            </a>
+          </li>
+          <li class="mb-2">
             <a href="financial_goals.html" class="nav-link d-flex align-items-center">
               <i class="bi bi-flag fs-2 me-2"></i> Goal
             </a>

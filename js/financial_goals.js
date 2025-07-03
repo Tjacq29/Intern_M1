@@ -22,7 +22,7 @@ function renderGoals(goals) {
     div.className = "card mb-3 p-3";
     div.innerHTML = `
       <h5>${goal.goal_name}</h5>
-      <div>Target: <b>€${goal.target_amount}</b></div>
+      <div>Target: <b>€${Number(goal.target_amount).toFixed(2)}</b></div>
       <div>Period: ${goal.start_date} to ${goal.end_date}</div>
       <canvas id="gauge-${goal.id}" height="80"></canvas>
     `;
@@ -33,10 +33,10 @@ function renderGoals(goals) {
 
 async function renderGauge(goal) {
   // Fetch total saved for this goal period (sum of "Saving" expenses in that period)
-  const res = await fetch(`../php/get_goal_progress.php?start=${goal.start_date}&end=${goal.end_date}`);
+  const res = await fetch(`../php/get_goal_progress.php?goal_id=${goal.id}&start=${goal.start_date}&end=${goal.end_date}`);
   const data = await res.json();
   const saved = data.success ? Number(data.saved) : 0;
-  const percent = Math.min(100, Math.round((saved / goal.target_amount) * 100));
+  const percent = goal.target_amount > 0 ? Math.min(100, Math.round((saved / goal.target_amount) * 100)) : 0;
 
   const ctx = document.getElementById(`gauge-${goal.id}`).getContext("2d");
   new Chart(ctx, {
@@ -69,7 +69,7 @@ async function renderGauge(goal) {
         },
         title: {
           display: true,
-          text: `Progress: €${saved} / €${goal.target_amount} (${percent}%)`,
+          text: `Progress: €${saved.toFixed(2)} / €${Number(goal.target_amount).toFixed(2)} (${percent}%)`,
           font: { size: 16 }
         }
       }

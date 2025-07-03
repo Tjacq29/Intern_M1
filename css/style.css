@@ -7,6 +7,7 @@ html, body {
 body {
   font-family: 'Segoe UI', sans-serif;
   background: url('../png/new-background.png') no-repeat center center fixed;
+  background: none;
   background-size: cover;
   color: #212529;
   position: relative;
@@ -423,4 +424,148 @@ select {
   font-weight: bold;
   color: #198754;
   margin-bottom: 1rem;
+}
+.card.profile-card {
+  border-radius: 22px;
+  background: rgba(255,255,255,0.93);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+  border: 1.5px solid #e3eaf3;
+  padding: 2.5rem 2rem 2rem 2rem;
+}
+
+.profile-pic {
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 4px solid #a3b6c9;
+  margin-bottom: 1rem;
+  background: #f8f9fa;
+  box-shadow: 0 2px 12px rgba(163,182,201,0.12);
+  display: block;
+}
+
+.file-input {
+  display: none;
+}
+
+.edit-pic-btn {
+  position: absolute;
+  right: 18px;
+  bottom: 10px;
+  background: #0d6efd;
+  color: #fff;
+  border-radius: 50%;
+  padding: 0.4rem 0.6rem;
+  border: 2px solid #fff;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(13,110,253,0.08);
+  font-size: 1.2rem;
+  transition: background 0.2s, color 0.2s;
+}
+
+.edit-pic-btn:hover {
+  background: #157347;
+  color: #fff;
+}
+
+#userName {
+  font-weight: 700;
+  font-size: 1.5rem;
+  color: #1a202c;
+  margin-bottom: 0.2rem;
+  letter-spacing: 1px;
+}
+
+#userEmail {
+  color: #6c757d;
+  font-size: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+#changePasswordForm h6 {
+  font-weight: 600;
+  color: #0d6efd;
+  margin-bottom: 1rem;
+}
+
+#changePasswordForm input {
+  border-radius: 10px;
+  border: 1px solid #ced4da;
+  background: #f8f9fa;
+  font-size: 1rem;
+  padding: 0.7rem 1rem;
+  margin-bottom: 0.7rem;
+  transition: border-color 0.2s;
+}
+
+#changePasswordForm input:focus {
+  border-color: #0d6efd;
+  outline: none;
+}
+
+.btn-primary {
+  background: #0d6efd;
+  border: none;
+  font-weight: 600;
+  font-size: 1.1rem;
+  border-radius: 10px;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+  transition: background 0.2s;
+}
+
+.btn-primary:hover {
+  background: #157347;
+}
+
+.btn-secondary {
+  background: #6c757d;
+  border: none;
+  font-weight: 600;
+  font-size: 1.1rem;
+  border-radius: 10px;
+  margin-top: 0.5rem;
+  transition: background 0.2s;
+}
+
+.btn-secondary:hover {
+  background: #495057;
+}
+
+#passwordMsg.text-success {
+  color: #198754;
+}
+
+#passwordMsg.text-danger {
+  color: #dc3545;
+}
+.text-center.position-relative {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+/* --- SUMMARY PAGE STYLES --- */
+.card {
+  border-radius: 18px;
+}
+.card-title {
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+.fs-3 {
+  font-size: 2rem !important;
+}
+.container {
+  max-width: 900px;
+  margin: auto;
+}
+select.form-select {
+  max-width: 250px;
+}
+@media (max-width: 768px) {
+  .container {
+    padding: 0 0.5rem;
+  }
 }

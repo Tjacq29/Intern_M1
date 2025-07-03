@@ -6,15 +6,13 @@ const monthInput = document.getElementById("trackingMonth");
 
 let expenses = [];
 let chartInstance = null;
+window.lastRemaining = [];
 
-// Fetch all categories ever used by the user
 async function fetchAllCategories() {
   try {
     const res = await fetch("../php/get_all_categories.php");
     const data = await res.json();
-
     categorySelect.innerHTML = '<option value="">-- Select Category --</option>';
-
     if (data.success && Array.isArray(data.categories)) {
       data.categories.forEach(category => {
         const option = document.createElement("option");
@@ -28,7 +26,6 @@ async function fetchAllCategories() {
   }
 }
 
-// Fetch budget for the selected month
 async function fetchBudgetForMonth(month, year) {
   try {
     const res = await fetch(`../php/get_budget.php?month=${month}&year=${year}`);
@@ -46,12 +43,12 @@ async function fetchBudgetForMonth(month, year) {
   }
 }
 
-// Load expenses from DB for selected month
 async function fetchExpenses(month, year) {
   try {
     const res = await fetch(`../php/get_expenses.php?month=${month}&year=${year}`);
     const data = await res.json();
     expenses = data.success && Array.isArray(data.expenses) ? data.expenses : [];
+    window.expenses = expenses; // Always update global for modal
     renderTable();
     await renderChart();
   } catch (err) {
@@ -59,31 +56,31 @@ async function fetchExpenses(month, year) {
   }
 }
 
-// Display expenses in table
 function renderTable() {
   tableBody.innerHTML = "";
-  expenses.forEach((exp, idx) => {
-    const row = document.createElement("tr");
-    row.innerHTML = `
-      <td>${exp.date}</td>
-      <td>${exp.amount}</td>
-      <td>${exp.category}</td>
-      <td>
-        <div class="dropdown">
-          <button class="btn btn-link p-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-            <i class="bi bi-three-dots-vertical"></i>
-          </button>
-          <ul class="dropdown-menu">
-            <li><a class="dropdown-item edit-expense" href="#" data-idx="${idx}">Edit</a></li>
-            <li><a class="dropdown-item delete-expense" href="#" data-idx="${idx}">Delete</a></li>
-          </ul>
-        </div>
-      </td>
-    `;
-    tableBody.appendChild(row);
-  });
+  expenses
+    .filter(exp => !exp.category.startsWith("Goal Transfer")) // <-- Ajoute ce filtre
+    .forEach((exp, idx) => {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${exp.date}</td>
+        <td>${exp.amount}</td>
+        <td>${exp.category}</td>
+        <td>
+          <div class="dropdown">
+            <button class="btn btn-link p-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="bi bi-three-dots-vertical"></i>
+            </button>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item edit-expense" href="#" data-idx="${idx}">Edit</a></li>
+              <li><a class="dropdown-item delete-expense" href="#" data-idx="${idx}">Delete</a></li>
+            </ul>
+          </div>
+        </td>
+      `;
+      tableBody.appendChild(row);
+    });
 
-  // Attach event listeners for edit/delete
   document.querySelectorAll(".edit-expense").forEach(btn => {
     btn.addEventListener("click", handleEditExpense);
   });
@@ -92,28 +89,24 @@ function renderTable() {
   });
 }
 
-// Draw the budget usage chart
 async function renderChart() {
-  // Get selected month/year
   const [year, monthStr] = monthInput.value.split("-");
   const month = parseInt(monthStr, 10);
   const yearInt = parseInt(year, 10);
 
-  // Fetch budget for this month
   const budgets = await fetchBudgetForMonth(month, yearInt);
 
-  // Gather all categories (from dropdown)
   const allLabels = Array.from(categorySelect.options)
     .filter(opt => opt.value)
     .map(opt => opt.value);
 
-  // Calculate spent per category
   const spentPerCategory = {};
-  expenses.forEach(e => {
-    spentPerCategory[e.category] = (spentPerCategory[e.category] || 0) + Number(e.amount);
-  });
+  expenses
+    .filter(e => !e.category.startsWith("Goal Transfer")) 
+    .forEach(e => {
+      spentPerCategory[e.category] = (spentPerCategory[e.category] || 0) + Number(e.amount);
+    });
 
-  // Prepare data for chart
   const spent = allLabels.map(cat => spentPerCategory[cat] || 0);
   const remaining = allLabels.map(cat => {
     const budget = budgets[cat] || 0;
@@ -121,7 +114,6 @@ async function renderChart() {
     return Math.max(budget - spentVal, 0);
   });
 
-  // Filter out categories where both spent and remaining are 0
   const filtered = allLabels
     .map((cat, i) => ({
       cat,
@@ -208,25 +200,21 @@ async function renderChart() {
     plugins: [ChartDataLabels]
   });
 
-  // Make remainingFiltered available globally for transfer calculation
   window.lastRemaining = remainingFiltered || [];
 }
 
-// When user adds an expense
 form.addEventListener("submit", async e => {
   e.preventDefault();
   const date = document.getElementById("expenseDate").value;
   const amount = parseFloat(document.getElementById("expenseAmount").value);
   const category = document.getElementById("expenseCategory").value;
 
-  // Get selected month/year
   const [year, monthStr] = monthInput.value.split("-");
   const month = parseInt(monthStr, 10);
   const yearInt = parseInt(year, 10);
 
   const newExpense = { date, amount, category, month, year: yearInt };
 
-  // Save to DB
   try {
     const res = await fetch("../php/save_expense.php", {
       method: "POST",
@@ -246,7 +234,6 @@ form.addEventListener("submit", async e => {
   }
 });
 
-// Month selector logic
 monthInput.addEventListener("change", async () => {
   await fetchAllCategories();
   const [year, monthStr] = monthInput.value.split("-");
@@ -255,7 +242,6 @@ monthInput.addEventListener("change", async () => {
   await fetchExpenses(month, yearInt);
 });
 
-// Init: add month selector if not present
 document.addEventListener("DOMContentLoaded", async () => {
   if (!monthInput) {
     const main = document.querySelector("main");
@@ -267,7 +253,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     `;
     main.prepend(div);
   }
-  // Set default month
   if (monthInput && !monthInput.value) {
     monthInput.value = new Date().toISOString().slice(0, 7);
   }
@@ -283,7 +268,6 @@ async function handleDeleteExpense(e) {
   const idx = e.target.getAttribute("data-idx");
   const exp = expenses[idx];
   if (confirm(`Delete expense: ${exp.amount}€ for ${exp.category} on ${exp.date}?`)) {
-    // Call your delete PHP endpoint
     const res = await fetch("../php/delete_expense.php", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -291,7 +275,6 @@ async function handleDeleteExpense(e) {
     });
     const data = await res.json();
     if (data.success) {
-      // Refresh
       const [year, monthStr] = monthInput.value.split("-");
       const month = parseInt(monthStr, 10);
       const yearInt = parseInt(year, 10);
@@ -306,17 +289,16 @@ function handleEditExpense(e) {
   e.preventDefault();
   const idx = e.target.getAttribute("data-idx");
   const exp = expenses[idx];
-  // Fill the form with the expense data for editing
   document.getElementById("expenseDate").value = exp.date;
   document.getElementById("expenseAmount").value = exp.amount;
   document.getElementById("expenseCategory").value = exp.category;
 
-  // Change form button to "Update"
   const submitBtn = form.querySelector("button[type=submit]");
   submitBtn.textContent = "Update Expense";
   submitBtn.classList.add("btn-warning");
 
-  // On submit, update instead of add
+  form.onsubmit = null;
+
   form.onsubmit = async function(ev) {
     ev.preventDefault();
     const date = document.getElementById("expenseDate").value;
@@ -326,12 +308,11 @@ function handleEditExpense(e) {
     const month = parseInt(monthStr, 10);
     const yearInt = parseInt(year, 10);
 
-    // Call your update PHP endpoint
     const res = await fetch("../php/update_expense.php", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        old: exp, // old values to identify the row
+        old: exp,
         date, amount, category, month, year: yearInt
       })
     });
@@ -341,105 +322,260 @@ function handleEditExpense(e) {
       form.reset();
       submitBtn.textContent = "Add Expense";
       submitBtn.classList.remove("btn-warning");
-      form.onsubmit = null; // restore default
+      form.onsubmit = defaultAddExpenseHandler;
     } else {
       alert(data.message || "Error updating expense.");
     }
   };
 }
 
-// Open the modal when clicking the transfer button
+const defaultAddExpenseHandler = async function(e) {
+  e.preventDefault();
+  const date = document.getElementById("expenseDate").value;
+  const amount = parseFloat(document.getElementById("expenseAmount").value);
+  const category = document.getElementById("expenseCategory").value;
+  const [year, monthStr] = monthInput.value.split("-");
+  const month = parseInt(monthStr, 10);
+  const yearInt = parseInt(year, 10);
+
+  const newExpense = { date, amount, category, month, year: yearInt };
+
+  try {
+    const res = await fetch("../php/save_expense.php", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(newExpense)
+    });
+    const result = await res.json();
+    if (result.success) {
+      await fetchExpenses(month, yearInt);
+      form.reset();
+    } else {
+      alert("Error saving expense: " + result.message);
+    }
+  } catch (err) {
+    alert("Error saving expense.");
+    console.error(err);
+  }
+};
+form.onsubmit = defaultAddExpenseHandler;
+
+// --- MODAL LOGIC ---
+
 document.getElementById("transferToGoalBtn").addEventListener("click", async () => {
+  // Always refresh expenses before opening modal!
+  const [year, monthStr] = document.getElementById("trackingMonth").value.split("-");
+  const month = parseInt(monthStr, 10);
+  const yearInt = parseInt(year, 10);
+  await fetchExpenses(month, yearInt);
+
   // 1. Fetch goals
   const res = await fetch("../php/get_goals.php");
   const data = await res.json();
-  const goalSelect = document.getElementById("goalSelect");
-  goalSelect.innerHTML = '<option value="">-- Select a Goal --</option>';
-  if (data.success && Array.isArray(data.goals)) {
-    data.goals.forEach(goal => {
-      const opt = document.createElement("option");
-      opt.value = goal.id;
-      opt.textContent = `${goal.goal_name} (target: €${goal.target_amount})`;
-      goalSelect.appendChild(opt);
-    });
-  }
+  const goals = (data.success && Array.isArray(data.goals)) ? data.goals : [];
 
-  // 2. Show categories with checkboxes to select which "Spent" to include
-  const categoryCheckboxes = document.getElementById("categoryCheckboxes");
-  categoryCheckboxes.innerHTML = "";
-  const categories = Array.from(new Set(expenses.map(e => e.category)));
-  categories.forEach(cat => {
-    const div = document.createElement("div");
-    div.className = "form-check";
-    div.innerHTML = `
-    <input class="form-check-input" type="checkbox" value="${cat}" id="cat-${cat}">
-    <label class="form-check-label" for="cat-${cat}">${cat}</label>
-  `;
-    categoryCheckboxes.appendChild(div);
+  // 2. Calcule les montants disponibles
+  const remainingAvailable = window.lastRemaining ? window.lastRemaining.reduce((a, b) => a + b, 0) : 0;
+  document.getElementById("remainingAvailable").textContent = remainingAvailable.toFixed(2);
+
+  // 3. Génère les champs de split pour chaque goal (remaining)
+  const remainingSplitFields = document.getElementById("remainingSplitFields");
+  remainingSplitFields.innerHTML = "";
+  goals.forEach(goal => {
+    const divR = document.createElement("div");
+    divR.className = "input-group mb-1";
+    divR.innerHTML = `
+      <span class="input-group-text">${goal.goal_name}</span>
+      <input type="number" min="0" step="0.01" class="form-control remaining-split" data-goal="${goal.id}" value="0">
+      <span class="input-group-text">€</span>
+    `;
+    remainingSplitFields.appendChild(divR);
   });
 
-  // 3. Calculate the total amount to transfer (sum of "Remaining" + selected "Spent")
-  function updateTotalTransfer() {
-    // Get checked categories
-    const checkedCats = Array.from(categoryCheckboxes.querySelectorAll("input:checked")).map(cb => cb.value);
-    // Sum of "Spent" for these categories
-    let spentSum = 0;
-    expenses.forEach(e => {
-      if (checkedCats.includes(e.category)) spentSum += Number(e.amount);
+  // 4. Affiche la liste des catégories à cocher (spent)
+  // Use the up-to-date window.expenses
+  const spentCandidates = (window.expenses || []).filter(e =>
+    e.goal_id == null &&
+    new Date(e.date).getMonth() + 1 === month &&
+    new Date(e.date).getFullYear() === yearInt
+  );
+
+  const categories = {};
+  spentCandidates.forEach(e => {
+    if (!categories[e.category]) categories[e.category] = [];
+    categories[e.category].push(e);
+  });
+
+  const savingsListDiv = document.getElementById("savingsList");
+  savingsListDiv.innerHTML = "";
+  Object.entries(categories).forEach(([cat, ops], idx) => {
+    const id = `spentCatCheck${idx}`;
+    const total = ops.reduce((a, e) => a + Number(e.amount), 0);
+    savingsListDiv.innerHTML += `
+      <div class="form-check">
+        <input class="form-check-input spent-cat-check" type="checkbox" data-cat="${cat}" data-idx="${idx}" id="${id}">
+        <label class="form-check-label" for="${id}">
+          ${cat} (Total: ${total} €)
+        </label>
+      </div>
+    `;
+  });
+
+  // Reset split fields and selected savings
+  document.getElementById("splitSavingsFields").innerHTML = "";
+  document.getElementById("selectedSavingsTotal").textContent = "0.00";
+
+  // Quand on coche/décoche, affiche les champs de split
+  let selectedCategories = [];
+  function updateSplitFields() {
+    const splitSavingsFields = document.getElementById("splitSavingsFields");
+    splitSavingsFields.innerHTML = "";
+    selectedCategories = [];
+    let total = 0;
+    document.querySelectorAll(".spent-cat-check:checked").forEach(input => {
+      const cat = input.dataset.cat;
+      const ops = categories[cat];
+      selectedCategories.push({ cat, ops });
+      total += ops.reduce((a, e) => a + Number(e.amount), 0);
     });
-    // Sum of "Remaining" (all categories)
-    let remainingSum = 0;
-    if (window.lastRemaining) {
-      remainingSum = window.lastRemaining.reduce((a, b) => a + b, 0);
-    }
-    document.getElementById("totalTransfer").value = (spentSum + remainingSum).toFixed(2) + " €";
+    document.getElementById("selectedSavingsTotal").textContent = total.toFixed(2);
+
+    selectedCategories.forEach((catObj, cIdx) => {
+      const cat = catObj.cat;
+      const catTotal = catObj.ops.reduce((a, e) => a + Number(e.amount), 0);
+      splitSavingsFields.innerHTML += `<div class="fw-bold mt-2">${cat} - ${catTotal} €</div>`;
+      goals.forEach(goal => {
+        splitSavingsFields.innerHTML += `
+          <div class="input-group mb-1">
+            <span class="input-group-text">${goal.goal_name}</span>
+            <input type="number" min="0" max="${catTotal}" step="0.01" class="form-control split-saving-input" data-goal="${goal.id}" data-catidx="${cIdx}" value="0">
+            <span class="input-group-text">€</span>
+          </div>
+        `;
+      });
+    });
   }
-  categoryCheckboxes.addEventListener("change", updateTotalTransfer);
-  updateTotalTransfer();
+  savingsListDiv.removeEventListener("change", updateSplitFields); // Prevent double binding
+  savingsListDiv.addEventListener("change", updateSplitFields);
 
-  // Show the modal
-  const modal = new bootstrap.Modal(document.getElementById("transferModal"));
-  modal.show();
-
-  // Handle transfer form submission
+  // 5. Gestion du submit du formulaire de transfert
   document.getElementById("transferForm").onsubmit = async function(ev) {
     ev.preventDefault();
-    const goalId = goalSelect.value;
-    const checkedCats = Array.from(categoryCheckboxes.querySelectorAll("input:checked")).map(cb => cb.value);
 
-    // Calculate spent sum
-    let spentSum = 0;
-    expenses.forEach(e => {
-      if (checkedCats.includes(e.category)) spentSum += Number(e.amount);
+    // Récupère la répartition du remaining
+    const remainingSplits = {};
+    document.querySelectorAll(".remaining-split").forEach(input => {
+      const val = parseFloat(input.value) || 0;
+      if (val > 0) remainingSplits[input.dataset.goal] = val;
     });
 
-    // Calculate remaining sum (all categories)
-    let remainingSum = 0;
-    if (window.lastRemaining) {
-      remainingSum = window.lastRemaining.reduce((a, b) => a + b, 0);
+    // Récupère la répartition des catégories sélectionnées
+    const spentSplits = {};
+    let valid = true;
+    selectedCategories.forEach((catObj, cIdx) => {
+      let sum = 0;
+      goals.forEach(goal => {
+        const input = document.querySelector(`.split-saving-input[data-goal="${goal.id}"][data-catidx="${cIdx}"]`);
+        const val = parseFloat(input.value) || 0;
+        if (val > 0) {
+          if (!spentSplits[goal.id]) spentSplits[goal.id] = 0;
+          spentSplits[goal.id] += val;
+        }
+        sum += val;
+      });
+      const catTotal = catObj.ops.reduce((a, e) => a + Number(e.amount), 0);
+      if (sum > catTotal) valid = false;
+    });
+    if (!valid) {
+      alert("You cannot split more than the selected category total.");
+      return;
     }
 
-    // Send both to backend
+    // Vérifie que la somme ne dépasse pas le remaining
+    const totalR = Object.values(remainingSplits).reduce((a, b) => a + b, 0);
+    if (totalR > remainingAvailable) {
+      alert("You cannot transfer more than the available remaining.");
+      return;
+    }
+
+    // Envoie au backend
     const res = await fetch("../php/transfer_to_goal.php", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        goalId,
-        month: monthInput.value,
-        categories: checkedCats,
-        spent: spentSum,
-        remaining: remainingSum
+        remainingSplits,
+        spentSplits,
+        month: document.getElementById("trackingMonth").value
       })
     });
     const data = await res.json();
     if (data.success) {
       alert("Transfer completed!");
-      modal.hide();
+      bootstrap.Modal.getInstance(document.getElementById("transferModal")).hide();
+      const [year, monthStr] = document.getElementById("trackingMonth").value.split("-");
+      await fetchExpenses(parseInt(monthStr, 10), parseInt(year, 10));
+      if (typeof refreshGoalsProgress === "function") refreshGoalsProgress();
     } else {
       alert(data.message || "Error during transfer.");
     }
   };
 });
+async function fetchAndDisplayGoalTransfers() {
+  const month = document.getElementById("trackingMonth").value;
+  const res = await fetch(`../php/get_goal_transfers.php?month=${month}`);
+  const data = await res.json();
+  const tbody = document.querySelector("#goalTransfersTable tbody");
+  tbody.innerHTML = "";
+  if (data.transfers && data.transfers.length) {
+    data.transfers.forEach((tr, idx) => {
+      tbody.innerHTML += `
+        <tr>
+          <td>${tr.date}</td>
+          <td>€${Number(tr.amount).toFixed(2)}</td>
+          <td>${tr.goal_name || "-"}</td>
+          <td>${tr.category.replace("Goal Transfer ", "")}</td>
+          <td>
+            <button class="btn btn-sm btn-danger delete-transfer" 
+              data-date="${tr.date}" 
+              data-amount="${tr.amount}" 
+              data-category="${tr.category}" 
+              data-goal="${tr.goal_id || ''}">
+              <i class="bi bi-trash"></i>
+            </button>
+          </td>
+        </tr>
+      `;
+    });
+  } else {
+    tbody.innerHTML = `<tr><td colspan="5" class="text-center text-muted">No transfers this month</td></tr>`;
+  }
 
-// Make lastRemaining available for transfer calculation
-window.lastRemaining = [];
+  // Add delete logic
+  tbody.querySelectorAll(".delete-transfer").forEach(btn => {
+    btn.addEventListener("click", async function() {
+      if (!confirm("Delete this transfer?")) return;
+      const date = btn.getAttribute("data-date");
+      const amount = btn.getAttribute("data-amount");
+      const category = btn.getAttribute("data-category");
+      // goal_id is optional, not used in PHP delete, but can be sent if you update your PHP
+      const res = await fetch("../php/delete_expense.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ date, amount, category })
+      });
+      const data = await res.json();
+      if (data.success) {
+        await fetchAndDisplayGoalTransfers();
+        // Refresh other views if needed
+        const [year, monthStr] = document.getElementById("trackingMonth").value.split("-");
+        await fetchExpenses(parseInt(monthStr, 10), parseInt(year, 10));
+        if (typeof refreshGoalsProgress === "function") refreshGoalsProgress();
+      } else {
+        alert(data.message || "Error deleting transfer.");
+      }
+    });
+  });
+}
+// Appelle cette fonction au chargement et quand le mois change ou après un transfert
+document.addEventListener("DOMContentLoaded", fetchAndDisplayGoalTransfers);
+document.getElementById("trackingMonth").addEventListener("change", fetchAndDisplayGoalTransfers);

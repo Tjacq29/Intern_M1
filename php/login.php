@@ -7,7 +7,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $password = $_POST["password"];
 
     if (empty($email) || empty($password)) {
-        exit("Please fill in all fields.");
+        // Redirect with error for empty fields
+        header("Location: ../html/login.html?error=1");
+        exit();
     }
 
     $stmt = $pdo->prepare("SELECT id, full_name, email, password FROM users WHERE email = ?");
@@ -23,7 +25,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         header("Location: ../html/index.php");
         exit();
     } else {
-        exit("Invalid email or password.");
+        // Redirect with error for invalid credentials
+        header("Location: ../html/login.html?error=1");
+        exit();
     }
 }
 ?>

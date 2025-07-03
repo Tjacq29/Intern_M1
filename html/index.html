@@ -9,61 +9,113 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
   <link rel="stylesheet" href="../css/style.css">
 </head>
+<body class="d-flex flex-column min-vh-100">
+  <div class="d-flex flex-column flex-grow-1">
 
-<body class="d-flex flex-column vh-100">
-
-  <header class="bg-white shadow-sm py-2">
-    <div class="container-fluid d-flex align-items-center justify-content-between">
-      <h1 class="h3 mb-0 text-dark fw-bold">Student Finance Assistant</h1>
-      <div class="d-flex align-items-center">
-        <a href="login.html" class="btn btn-outline-primary big-btn me-2">Login</a>
-        <a href="signup.html" class="btn btn-primary big-btn me-3">Sign Up</a>
-        <a href="#" class="d-block">
-          <img src="https://cdn-icons-png.flaticon.com/512/847/847969.png" alt="Profile" class="rounded-circle" width="50" height="50">
-        </a>
-      </div>      
-    </div>
-  </header>
-
-  <div class="d-flex flex-grow-1">
-    <nav class="d-flex flex-column flex-shrink-0 bg-white border-end p-3" style="width: 200px;">
-      <ul class="nav nav-pills flex-column mb-auto text-start">
-        <li class="nav-item mb-2">
-          <a href="#" class="nav-link active py-3 d-flex align-items-center">
-            <i class="bi bi-house fs-2 me-2"></i> Home
+    <!-- HEADER -->
+    <header class="py-2 shadow-sm">
+      <div class="container-fluid d-flex align-items-center justify-content-between">
+        <h1 class="h3 mb-0 fw-bold">Student Finance Assistant</h1>
+        <div class="d-flex align-items-center">
+          <a href="login.html" class="btn btn-outline-primary big-btn me-2">Login</a>
+          <a href="signup.html" class="btn btn-primary big-btn me-3">Sign Up</a>
+          <a href="#" class="d-block">
+            <img src="https://cdn-icons-png.flaticon.com/512/847/847969.png" alt="Profile" class="rounded-circle" width="50" height="50">
           </a>
-        </li>
-        <li class="mb-2">
-          <a href="#" class="nav-link text-muted py-3 d-flex align-items-center">
-            <i class="bi bi-speedometer2 fs-2 me-2"></i> Dashboard
-          </a>
-        </li>
-        <li class="mb-2">
-          <a href="#" class="nav-link text-muted py-3 d-flex align-items-center">
-            <i class="bi bi-table fs-2 me-2"></i> Budget
-          </a>
-        </li>
-        <li class="mb-2">
-          <a href="#" class="nav-link text-muted py-3 d-flex align-items-center">
-            <i class="bi bi-grid-3x3-gap fs-2 me-2"></i> Expenses
-          </a>
-        </li>
-        <li class="mb-2">
-          <a href="#" class="nav-link text-muted py-3 d-flex align-items-center">
-            <i class="bi bi-person fs-2 me-2"></i> Profile
-          </a>
-        </li>
-      </ul>
-    </nav>
-
-    <main class="flex-grow-1">
-      <section class="d-flex align-items-center justify-content-center text-center bg-hero" style="min-height: 90vh;">
-        <div class="text-white">
-          <h1 class="display-4 fw-bold">Master Your Budget</h1>
-          <p class="lead mb-4">Take control of your finances and achieve your goals, with a budget plan adapted to your needs.</p>
         </div>
-      </section>
-    </main>
+      </div>
+    </header>
+
+    <!-- MAIN LAYOUT -->
+    <div class="d-flex flex-grow-1" style="min-height: 0;">
+      <!-- SIDEBAR -->
+      <nav class="sidebar">
+        <ul class="nav nav-pills flex-column mb-auto text-start">
+          <li class="mb-2">
+            <a href="index.html" class="nav-link active d-flex align-items-center">
+              <i class="bi bi-house fs-2 me-2"></i> Home
+            </a>
+          </li>
+          <li class="mb-2">
+            <a href="login.html" class="nav-link d-flex align-items-center">
+              <i class="bi bi-speedometer2 fs-2 me-2"></i> Dashboard
+            </a>
+          </li>
+          <li class="mb-2">
+            <a href="login.html" class="nav-link d-flex align-items-center">
+              <i class="bi bi-table fs-2 me-2"></i> Budget
+            </a>
+          </li>
+          <li class="mb-2">
+            <a href="login.html" class="nav-link d-flex align-items-center">
+              <i class="bi bi-grid-3x3-gap fs-2 me-2"></i> Expenses
+            </a>
+          </li>
+          <li class="mb-2">
+            <a href="login.html" class="nav-link d-flex align-items-center">
+              <i class="bi bi-flag fs-2 me-2"></i> Goal
+            </a>
+          </li>
+          <li class="mb-2">
+            <a href="login.html" class="nav-link d-flex align-items-center">
+              <i class="bi bi-person fs-2 me-2"></i> Profile
+            </a>
+          </li>
+        </ul>
+      </nav>
+
+      <!-- MAIN CONTENT -->
+      <main class="flex-grow-1 p-4">
+        <section class="container mb-5">
+          <div class="text-center mb-4">
+            <h2 class="fw-bold">Welcome to Student Finance Assistant</h2>
+            <p class="text-muted">Manage your finances, track expenses, and achieve your financial goals with ease.</p>
+          </div>
+
+          <div class="row mb-4">
+            <div class="col-md-4">
+              <div class="card text-center shadow-sm">
+                <div class="card-body">
+                  <h5 class="card-title">Budget Overview</h5>
+                  <p class="card-text">Track your monthly budget and expenses.</p>
+                  <a href="login.html" class="btn btn-primary">View Budget</a>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="card text-center shadow-sm">
+                <div class="card-body">
+                  <h5 class="card-title">Expense Tracker</h5>
+                  <p class="card-text">Log and categorize your expenses.</p>
+                  <a href="login.html" class="btn btn-primary">Track Expenses</a>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="card text-center shadow-sm">
+                <div class="card-body">
+                  <h5 class="card-title">Financial Goals</h5>
+                  <p class="card-text">Set and achieve your financial goals.</p>
+                  <a href="login.html" class="btn btn-primary">Set Goals</a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-12">
+              <div class="card shadow-sm">
+                <div class="card-body">
+                  <h5 class="card-title">Insights</h5>
+                  <p class="card-text">Visualize your spending patterns with charts and graphs.</p>
+                  <a href="login.html" class="btn btn-success">View Insights</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
