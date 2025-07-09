@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Financial Goals</title>
+  <title id="financialGoalsPageTitle">Financial Goals</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -13,16 +13,21 @@
     <!-- HEADER -->
     <header class="py-2 shadow-sm">
       <div class="container-fluid d-flex align-items-center justify-content-between">
-        <h1 class="h3 mb-0 fw-bold">Student Finance Assistant</h1>
+        <h1 class="h3 mb-0 fw-bold" id="appTitle">Student Finance Assistant</h1>
         <div class="d-flex align-items-center">
           <div class="dropdown">
             <a href="#" class="d-block link-dark text-decoration-none dropdown-toggle" id="userMenu" data-bs-toggle="dropdown" aria-expanded="false">
               <i class="bi bi-person-circle fs-1 text-dark"></i>
             </a>
             <ul class="dropdown-menu text-small dropdown-menu-end" aria-labelledby="userMenu">
-              <li><a class="dropdown-item" href="profile.php">Profile</a></li>
+              <li><a class="dropdown-item" href="profile.php" id="navProfile">Profile</a></li>
               <li><hr class="dropdown-divider"></li>
               <li><a class="dropdown-item" href="../php/logout.php">Logout</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li class="dropdown-header" id="languageHeader">Language</li>
+              <li><a class="dropdown-item lang-option" href="#" data-lang="en">English</a></li>
+              <li><a class="dropdown-item lang-option" href="#" data-lang="fr">Français</a></li>
+              <li><a class="dropdown-item lang-option" href="#" data-lang="id">Bahasa</a></li>
             </ul>
           </div>
         </div>
@@ -36,37 +41,32 @@
         <ul class="nav nav-pills flex-column mb-auto text-start">
           <li class="mb-2">
             <a href="index.php" class="nav-link d-flex align-items-center">
-              <i class="bi bi-house fs-2 me-2"></i> Home
+              <i class="bi bi-house fs-2 me-2"></i> <span id="navHome">Home</span>
             </a>
           </li>
           <li class="mb-2">
             <a href="dashboard.html" class="nav-link d-flex align-items-center">
-              <i class="bi bi-speedometer2 fs-2 me-2"></i> Dashboard
+              <i class="bi bi-speedometer2 fs-2 me-2"></i> <span id="navDashboard">Dashboard</span>
             </a>
           </li>
           <li class="mb-2">
             <a href="budget.html" class="nav-link d-flex align-items-center">
-              <i class="bi bi-table fs-2 me-2"></i> Budget
+              <i class="bi bi-table fs-2 me-2"></i> <span id="navBudget">Budget</span>
             </a>
           </li>
           <li class="mb-2">
             <a href="expenses.html" class="nav-link d-flex align-items-center">
-              <i class="bi bi-grid-3x3-gap fs-2 me-2"></i> Expenses
+              <i class="bi bi-grid-3x3-gap fs-2 me-2"></i> <span id="navExpenses">Expenses</span>
             </a>
           </li>
           <li class="mb-2">
             <a href="summary.html" class="nav-link d-flex align-items-center">
-              <i class="bi bi-bar-chart-line fs-2 me-2"></i> Summary
+              <i class="bi bi-bar-chart-line fs-2 me-2"></i> <span id="navSummary">Summary</span>
             </a>
           </li>
           <li class="mb-2">
             <a href="financial_goals.html" class="nav-link active d-flex align-items-center">
-                <i class="bi bi-flag fs-2 me-2"></i> Goal
-            </a>
-          </li>
-          <li class="mb-2">
-            <a href="profile.php" class="nav-link d-flex align-items-center">
-              <i class="bi bi-person fs-2 me-2"></i> Profile
+                <i class="bi bi-flag fs-2 me-2"></i> <span id="navGoal">Goal</span>
             </a>
           </li>
         </ul>
@@ -74,25 +74,25 @@
       <!-- MAIN CONTENT -->
       <main class="main-wrapper flex-grow-1">
         <div class="container py-5">
-          <h2 class="mb-4">Financial Goals</h2>
+          <h2 class="mb-4" id="financialGoalsTitle">Financial Goals</h2>
           <form id="goalForm" class="card p-3 mb-4">
             <div class="mb-3">
-              <label for="goalName" class="form-label">Goal Name</label>
+              <label for="goalName" class="form-label" id="goalNameLabel">Goal Name</label>
               <input type="text" class="form-control" id="goalName" required>
             </div>
             <div class="mb-3">
-              <label for="targetAmount" class="form-label">Target Amount (€)</label>
+              <label for="targetAmount" class="form-label" id="targetAmountLabel">Target Amount (€)</label>
               <input type="number" class="form-control" id="targetAmount" required min="1" step="0.01">
             </div>
             <div class="mb-3">
-              <label for="startDate" class="form-label">Start Date</label>
+              <label for="startDate" class="form-label" id="startDateLabel">Start Date</label>
               <input type="date" class="form-control" id="startDate" required>
             </div>
             <div class="mb-3">
-              <label for="endDate" class="form-label">End Date</label>
+              <label for="endDate" class="form-label" id="endDateLabel">End Date</label>
               <input type="date" class="form-control" id="endDate" required>
             </div>
-            <button type="submit" class="btn btn-primary">Set Goal</button>
+            <button type="submit" class="btn btn-primary" id="setGoalBtn">Set Goal</button>
           </form>
           <div id="goalsList"></div>
           <div id="progressSection" class="mt-5"></div>
@@ -101,5 +101,7 @@
     </div>
   </div>
   <script src="../js/financial_goals.js"></script>
+  <script src="../js/lang.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

@@ -8,6 +8,21 @@ let expenses = [];
 let chartInstance = null;
 window.lastRemaining = [];
 
+// --- Ajout : Fonctions utilitaires devise ---
+function getCurrentCurrency() {
+  return localStorage.getItem('selectedCurrency') || '€';
+}
+
+function formatCurrency(amount, currency) {
+  currency = currency || getCurrentCurrency();
+  if (currency === 'IDR' || currency === 'Rp') {
+    return 'Rp ' + amount.toLocaleString('id-ID', {minimumFractionDigits: 0});
+  } else {
+    return '€' + amount.toLocaleString('fr-FR', {minimumFractionDigits: 2});
+  }
+}
+// --------------------------------------------
+
 async function fetchAllCategories() {
   try {
     const res = await fetch("../php/get_all_categories.php");
@@ -59,12 +74,12 @@ async function fetchExpenses(month, year) {
 function renderTable() {
   tableBody.innerHTML = "";
   expenses
-    .filter(exp => !exp.category.startsWith("Goal Transfer")) // <-- Ajoute ce filtre
+    .filter(exp => !exp.category.startsWith("Goal Transfer"))
     .forEach((exp, idx) => {
       const row = document.createElement("tr");
       row.innerHTML = `
         <td>${exp.date}</td>
-        <td>${exp.amount}</td>
+        <td>${formatCurrency(exp.amount)}</td>
         <td>${exp.category}</td>
         <td>
           <div class="dropdown">
@@ -72,8 +87,14 @@ function renderTable() {
               <i class="bi bi-three-dots-vertical"></i>
             </button>
             <ul class="dropdown-menu">
-              <li><a class="dropdown-item edit-expense" href="#" data-idx="${idx}">Edit</a></li>
-              <li><a class="dropdown-item delete-expense" href="#" data-idx="${idx}">Delete</a></li>
+              <li><a class="dropdown-item edit-expense" href="#" 
+                data-date="${exp.date}" 
+                data-amount="${exp.amount}" 
+                data-category="${exp.category}">Edit</a></li>
+              <li><a class="dropdown-item delete-expense" href="#" 
+                data-date="${exp.date}" 
+                data-amount="${exp.amount}" 
+                data-category="${exp.category}">Delete</a></li>
             </ul>
           </div>
         </td>
@@ -81,6 +102,15 @@ function renderTable() {
       tableBody.appendChild(row);
     });
 
+  // Détache d'abord tous les anciens handlers pour éviter les doublons
+  document.querySelectorAll(".edit-expense").forEach(btn => {
+    btn.replaceWith(btn.cloneNode(true));
+  });
+  document.querySelectorAll(".delete-expense").forEach(btn => {
+    btn.replaceWith(btn.cloneNode(true));
+  });
+
+  // Puis attache les nouveaux handlers
   document.querySelectorAll(".edit-expense").forEach(btn => {
     btn.addEventListener("click", handleEditExpense);
   });
@@ -173,7 +203,8 @@ async function renderChart() {
           anchor: "end",
           align: "start",
           offset: -2,
-          formatter: (value) => value > 0 ? `€${value}` : "",
+          // --- MODIF : utilise formatCurrency ---
+          formatter: (value) => value > 0 ? formatCurrency(value) : "",
           clamp: true
         }
       },
@@ -243,6 +274,7 @@ monthInput.addEventListener("change", async () => {
 });
 
 document.addEventListener("DOMContentLoaded", async () => {
+  window.currentCurrency = getCurrentCurrency();
   if (!monthInput) {
     const main = document.querySelector("main");
     const div = document.createElement("div");
@@ -265,9 +297,15 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 async function handleDeleteExpense(e) {
   e.preventDefault();
-  const idx = e.target.getAttribute("data-idx");
-  const exp = expenses[idx];
-  if (confirm(`Delete expense: ${exp.amount}€ for ${exp.category} on ${exp.date}?`)) {
+  const date = e.target.getAttribute("data-date");
+  const amount = e.target.getAttribute("data-amount");
+  const category = e.target.getAttribute("data-category");
+  const exp = expenses.find(
+    ex => ex.date === date && String(ex.amount) === String(amount) && ex.category === category
+  );
+  if (!exp) return alert("Expense not found.");
+  const formattedAmount = formatCurrency(exp.amount);
+  if (confirm(`Delete expense: ${formattedAmount} for ${exp.category} on ${exp.date}?`)) {
     const res = await fetch("../php/delete_expense.php", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -322,7 +360,6 @@ function handleEditExpense(e) {
       form.reset();
       submitBtn.textContent = "Add Expense";
       submitBtn.classList.remove("btn-warning");
-      form.onsubmit = defaultAddExpenseHandler;
     } else {
       alert(data.message || "Error updating expense.");
     }
@@ -358,7 +395,6 @@ const defaultAddExpenseHandler = async function(e) {
     console.error(err);
   }
 };
-form.onsubmit = defaultAddExpenseHandler;
 
 // --- MODAL LOGIC ---
 
@@ -387,17 +423,17 @@ document.getElementById("transferToGoalBtn").addEventListener("click", async () 
     divR.innerHTML = `
       <span class="input-group-text">${goal.goal_name}</span>
       <input type="number" min="0" step="0.01" class="form-control remaining-split" data-goal="${goal.id}" value="0">
-      <span class="input-group-text">€</span>
+      <span class="input-group-text">${getCurrentCurrency() === 'Rp' || getCurrentCurrency() === 'IDR' ? 'Rp' : '€'}</span>
     `;
     remainingSplitFields.appendChild(divR);
   });
 
   // 4. Affiche la liste des catégories à cocher (spent)
-  // Use the up-to-date window.expenses
   const spentCandidates = (window.expenses || []).filter(e =>
     e.goal_id == null &&
     new Date(e.date).getMonth() + 1 === month &&
-    new Date(e.date).getFullYear() === yearInt
+    new Date(e.date).getFullYear() === yearInt &&
+    !e.category.startsWith("Goal Transfer")
   );
 
   const categories = {};
@@ -415,7 +451,7 @@ document.getElementById("transferToGoalBtn").addEventListener("click", async () 
       <div class="form-check">
         <input class="form-check-input spent-cat-check" type="checkbox" data-cat="${cat}" data-idx="${idx}" id="${id}">
         <label class="form-check-label" for="${id}">
-          ${cat} (Total: ${total} €)
+          ${cat} (Total: ${formatCurrency(total)})
         </label>
       </div>
     `;
@@ -443,13 +479,13 @@ document.getElementById("transferToGoalBtn").addEventListener("click", async () 
     selectedCategories.forEach((catObj, cIdx) => {
       const cat = catObj.cat;
       const catTotal = catObj.ops.reduce((a, e) => a + Number(e.amount), 0);
-      splitSavingsFields.innerHTML += `<div class="fw-bold mt-2">${cat} - ${catTotal} €</div>`;
+      splitSavingsFields.innerHTML += `<div class="fw-bold mt-2">${cat} - ${formatCurrency(catTotal)}</div>`;
       goals.forEach(goal => {
         splitSavingsFields.innerHTML += `
           <div class="input-group mb-1">
             <span class="input-group-text">${goal.goal_name}</span>
             <input type="number" min="0" max="${catTotal}" step="0.01" class="form-control split-saving-input" data-goal="${goal.id}" data-catidx="${cIdx}" value="0">
-            <span class="input-group-text">€</span>
+            <span class="input-group-text">${getCurrentCurrency() === 'Rp' || getCurrentCurrency() === 'IDR' ? 'Rp' : '€'}</span>
           </div>
         `;
       });
@@ -520,6 +556,7 @@ document.getElementById("transferToGoalBtn").addEventListener("click", async () 
     }
   };
 });
+
 async function fetchAndDisplayGoalTransfers() {
   const month = document.getElementById("trackingMonth").value;
   const res = await fetch(`../php/get_goal_transfers.php?month=${month}`);
@@ -531,7 +568,7 @@ async function fetchAndDisplayGoalTransfers() {
       tbody.innerHTML += `
         <tr>
           <td>${tr.date}</td>
-          <td>€${Number(tr.amount).toFixed(2)}</td>
+          <td>${formatCurrency(Number(tr.amount))}</td>
           <td>${tr.goal_name || "-"}</td>
           <td>${tr.category.replace("Goal Transfer ", "")}</td>
           <td>
@@ -579,3 +616,34 @@ async function fetchAndDisplayGoalTransfers() {
 // Appelle cette fonction au chargement et quand le mois change ou après un transfert
 document.addEventListener("DOMContentLoaded", fetchAndDisplayGoalTransfers);
 document.getElementById("trackingMonth").addEventListener("change", fetchAndDisplayGoalTransfers);
+
+// Rafraîchir le tableau des transferts après un transfert réussi
+document.addEventListener("DOMContentLoaded", function() {
+  window.currentCurrency = getCurrentCurrency();
+  const transferForm = document.getElementById("transferForm");
+  if (transferForm) {
+    const oldHandler = transferForm.onsubmit;
+    transferForm.onsubmit = async function(ev) {
+      if (typeof oldHandler === "function") {
+        await oldHandler(ev);
+        if (typeof fetchAndDisplayGoalTransfers === "function") {
+          await fetchAndDisplayGoalTransfers();
+        }
+      }
+    };
+  }
+});
+
+// Quand on change la langue, recharge les dépenses et transferts pour ré-attacher les handlers
+document.querySelectorAll(".lang-option").forEach(el => {
+  el.addEventListener("click", async e => {
+    const monthInput = document.getElementById("trackingMonth");
+    if (monthInput && monthInput.value) {
+      const [year, monthStr] = monthInput.value.split("-");
+      const month = parseInt(monthStr, 10);
+      const yearInt = parseInt(year, 10);
+      if (typeof fetchExpenses === "function") await fetchExpenses(month, yearInt);
+      if (typeof fetchAndDisplayGoalTransfers === "function") await fetchAndDisplayGoalTransfers();
+    }
+  });
+});

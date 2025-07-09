@@ -16,16 +16,21 @@
     <!-- HEADER -->
     <header class="py-2 shadow-sm">
       <div class="container-fluid d-flex align-items-center justify-content-between">
-        <h1 class="h3 mb-0 fw-bold">Student Finance Assistant</h1>
+        <h1 class="h3 mb-0 fw-bold" id="appTitle">Student Finance Assistant</h1>
         <div class="d-flex align-items-center">
           <div class="dropdown">
             <a href="#" class="d-block link-dark text-decoration-none dropdown-toggle" id="userMenu" data-bs-toggle="dropdown" aria-expanded="false">
               <i class="bi bi-person-circle fs-1 text-dark"></i>
             </a>
             <ul class="dropdown-menu text-small dropdown-menu-end" aria-labelledby="userMenu">
-              <li><a class="dropdown-item" href="profile.php">Profile</a></li>
+              <li><a class="dropdown-item" href="profile.php" id="navProfile">Profile</a></li>
               <li><hr class="dropdown-divider"></li>
               <li><a class="dropdown-item" href="../php/logout.php">Logout</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li class="dropdown-header" id="languageHeader">Language</li>
+              <li><a class="dropdown-item lang-option" href="#" data-lang="en">English</a></li>
+              <li><a class="dropdown-item lang-option" href="#" data-lang="fr">Français</a></li>
+              <li><a class="dropdown-item lang-option" href="#" data-lang="id">Bahasa</a></li>
             </ul>
           </div>
         </div>
@@ -39,77 +44,72 @@
         <ul class="nav nav-pills flex-column mb-auto text-start">
           <li class="mb-2">
             <a href="index.php" class="nav-link d-flex align-items-center">
-              <i class="bi bi-house fs-2 me-2"></i> Home
+              <i class="bi bi-house fs-2 me-2"></i> <span id="navHome">Home</span>
             </a>
           </li>
           <li class="mb-2">
             <a href="dashboard.html" class="nav-link d-flex align-items-center">
-              <i class="bi bi-speedometer2 fs-2 me-2"></i> Dashboard
+              <i class="bi bi-speedometer2 fs-2 me-2"></i> <span id="navDashboard">Dashboard</span>
             </a>
           </li>
           <li class="mb-2">
             <a href="budget.html" class="nav-link d-flex align-items-center">
-              <i class="bi bi-table fs-2 me-2"></i> Budget
+              <i class="bi bi-table fs-2 me-2"></i> <span id="navBudget">Budget</span>
             </a>
           </li>
           <li class="mb-2">
             <a href="expenses.html" class="nav-link active d-flex align-items-center">
-              <i class="bi bi-grid-3x3-gap fs-2 me-2"></i> Expenses
+              <i class="bi bi-grid-3x3-gap fs-2 me-2"></i> <span id="navExpenses">Expenses</span>
             </a>
           </li>
           <li class="mb-2">
             <a href="summary.html" class="nav-link d-flex align-items-center">
-              <i class="bi bi-bar-chart-line fs-2 me-2"></i> Summary
+              <i class="bi bi-bar-chart-line fs-2 me-2"></i> <span id="navSummary">Summary</span>
             </a>
           </li>
           <li class="mb-2">
             <a href="financial_goals.html" class="nav-link d-flex align-items-center">
-              <i class="bi bi-flag fs-2 me-2"></i> Goal
+              <i class="bi bi-flag fs-2 me-2"></i> <span id="navGoal">Goal</span>
             </a>
-          </li>
-          <li class="mb-2">
-            <a href="profile.php" class="nav-link d-flex align-items-center">
-              <i class="bi bi-person fs-2 me-2"></i> Profile
-            </a>
-          </li>
+          </li>          
         </ul>
       </nav>
 
       <!-- MAIN -->
       <main class="flex-grow-1 p-4">
-        <h2 class="text-center mb-4">Track Your Expenses</h2>
+        <h2 class="text-center mb-4" id="expensesTitle">Track Your Expenses</h2>
         <div class="mb-3">
-          <label for="trackingMonth" class="form-label">Select Month</label>
+          <label for="trackingMonth" class="form-label" id="selectMonthLabel">Select Month</label>
           <input type="month" class="form-control" id="trackingMonth" value="">
         </div>
         <form id="expenseForm" class="row g-3 align-items-end mb-4">
           <div class="col-md-4">
-            <label for="expenseDate" class="form-label">Date</label>
+            <label for="expenseDate" class="form-label" id="dateLabel">Date</label>
             <input type="date" class="form-control" id="expenseDate" required>
           </div>
           <div class="col-md-4">
-            <label for="expenseAmount" class="form-label">Amount </label>
+            <label for="expenseAmount" class="form-label" id="amountLabel">Amount</label>
             <input type="number" class="form-control" id="expenseAmount" required>
           </div>
           <div class="col-md-4">
-            <label for="expenseCategory" class="form-label">Category</label>
+            <label for="expenseCategory" class="form-label" id="categoryLabel">Category</label>
             <select class="form-select" id="expenseCategory" required>
-              <option value="">-- Select Category --</option>              
+              <option value="" id="optCategoryDefault">-- Select Category --</option>              
             </select>
           </div>
           <div class="text-center mt-3">
-            <button type="submit" class="btn btn-primary px-4">Add Expense</button>
+            <button type="submit" class="btn btn-primary px-4" id="addExpenseBtn">Add Expense</button>
           </div>
         </form>
 
-        <h4 class="mt-4">Expense History</h4>
+        <h4 class="mt-4" id="expenseHistoryTitle">Expense History</h4>
         <table class="table table-hover mt-3">
           <thead class="table-light">
             <tr>
-              <th>Date</th>
-              <th>Amount</th>
-              <th>Category</th>
-              <th>Actions</th>
+              <th id="tableDateHeader">Date</th>
+              <th id="tableAmountHeader">Amount</th>
+              <th id="tableCategoryHeader">Category</th>
+              <th id="tableActionsHeader">Actions</th>
             </tr>
           </thead>
           <tbody id="expenseTableBody"></tbody>
@@ -135,46 +135,52 @@
                 </div>
                 <div class="modal-body">
                   <div class="mb-3">
-                    <label class="form-label">Distribute Remaining</label>
+                    <label class="form-label" id="distributeRemainingLabel">Distribute Remaining</label>
                     <div id="remainingSplitFields"></div>
                     <div class="small text-muted">
-                      Total remaining available: <span id="remainingAvailable">0.00</span> €
+                      <span id="totalRemainingText">Total remaining available:</span> <span id="remainingAvailable">0.00</span> <span id="currencySymbol">€</span>
                     </div>
                   </div>
                   <div class="mb-3">
-                    <label class="form-label">Distribute Spent (Select Categories)</label>
+                    <label class="form-label" id="distributeSpentLabel">Distribute Spent (Select Categories)</label>
                     <div id="savingsList"></div>
                     <div id="splitSavingsFields"></div>
                     <div class="small text-muted">
-                      Total selected savings: <span id="selectedSavingsTotal">0.00</span> €
+                      <span id="totalSelectedSavingsText">Total selected savings:</span> <span id="selectedSavingsTotal">0.00</span> <span id="currencySymbol2">€</span>
                     </div>
                   </div>
                 </div>
                 <div class="modal-footer">
-                  <button type="submit" class="btn btn-success">Transfer</button>
+                  <button type="submit" class="btn btn-success" id="transferBtn">Transfer</button>
                 </div>
               </form>
             </div>
           </div>
         </div>
-        <!-- Ajoute ceci sous le bouton "Transfer to Goal" -->
+
         <div class="mt-4">
-          <h5>Goal Transfers This Month</h5>
+          <h5 id="goalTransfersTitle">Goal Transfers This Month</h5>
           <table class="table table-bordered" id="goalTransfersTable">
             <thead>
               <tr>
-                <th>Date</th>
-                <th>Amount</th>
-                <th>Goal</th>
-                <th>Type</th>
+                <th id="goalTableDate">Date</th>
+                <th id="goalTableAmount">Amount</th>
+                <th id="goalTableGoal">Goal</th>
+                <th id="goalTableType">Type</th>
+                <th>Action</th>
               </tr>
             </thead>
             <tbody></tbody>
           </table>
         </div>
-  
+
+      </main>
+    </div>
+  </div>
+
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
   <script src="../js/expenses.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../js/lang.js"></script>
 </body>
 </html>

@@ -237,8 +237,12 @@ function setupChartTypeSelector() {
 function setupCurrencySelector() {
   const selector = document.getElementById("currencySelect");
   if (!selector) return;
+  // Set the selector to the saved value on load
+  const savedCurrency = localStorage.getItem('selectedCurrency');
+  if (savedCurrency) selector.value = savedCurrency;
   selector.addEventListener("change", (e) => {
     selectedCurrency = e.target.value;
+    localStorage.setItem('selectedCurrency', selectedCurrency); // <-- Save to localStorage
     updateChart();
   });
 }

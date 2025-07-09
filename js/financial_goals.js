@@ -2,6 +2,20 @@ const form = document.getElementById("goalForm");
 const goalsList = document.getElementById("goalsList");
 const progressSection = document.getElementById("progressSection");
 
+// Récupère la devise choisie (Rp ou €)
+const currentCurrency = localStorage.getItem('selectedCurrency') || '€';
+function getTranslation(key) {
+  const lang = localStorage.getItem('lang') || 'en';
+  return (window.translations && window.translations[lang] && window.translations[lang][key]) || key;
+}
+function formatCurrency(amount, currency = currentCurrency) {
+  if (currency === 'IDR' || currency === 'Rp') {
+    return 'Rp ' + Number(amount).toLocaleString('id-ID', {minimumFractionDigits: 0});
+  } else {
+    return '€' + Number(amount).toLocaleString('fr-FR', {minimumFractionDigits: 2});
+  }
+}
+
 async function fetchGoals() {
   const res = await fetch("../php/get_goals.php");
   const data = await res.json();
@@ -22,15 +36,14 @@ function renderGoals(goals) {
     div.className = "card mb-3 p-3";
     div.innerHTML = `
       <h5>${goal.goal_name}</h5>
-      <div>Target: <b>€${Number(goal.target_amount).toFixed(2)}</b></div>
-      <div>Period: ${goal.start_date} to ${goal.end_date}</div>
+      <div><span class="targetLabel">Target:</span> <b>${formatCurrency(goal.target_amount)}</b></div>
+      <div><span class="periodLabel">Period:</span> ${goal.start_date} to ${goal.end_date}</div>
       <canvas id="gauge-${goal.id}" height="80"></canvas>
     `;
     goalsList.appendChild(div);
     renderGauge(goal);
   });
 }
-
 async function renderGauge(goal) {
   // Fetch total saved for this goal period (sum of "Saving" expenses in that period)
   const res = await fetch(`../php/get_goal_progress.php?goal_id=${goal.id}&start=${goal.start_date}&end=${goal.end_date}`);
@@ -64,12 +77,12 @@ async function renderGauge(goal) {
         legend: { display: false },
         tooltip: {
           callbacks: {
-            label: ctx => ctx.label + ": €" + ctx.parsed
+            label: ctx => ctx.label + ": " + formatCurrency(ctx.parsed)
           }
         },
         title: {
           display: true,
-          text: `Progress: €${saved.toFixed(2)} / €${Number(goal.target_amount).toFixed(2)} (${percent}%)`,
+          text: `${getTranslation('progressLabel')} ${formatCurrency(saved)} / ${formatCurrency(goal.target_amount)} (${percent}%)`,
           font: { size: 16 }
         }
       }
