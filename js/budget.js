@@ -2,7 +2,6 @@
 let chartInstance = null;
 let currentChartType = "pie"; // default
 let selectedCurrency = "€";
-let inputAsPercentage = false; // not used anymore
 
 // === Utilities ===
 function getRandomColor() {
@@ -118,7 +117,7 @@ function updateChart() {
 }
 
 // === Expense Row ===
-function addExpenseRow(label = '', amount = '', isFixed = false) {
+function addExpenseRow(label = '', amount = '', isFixed = false, duration = 1) {
   const table = document.getElementById("expenseTableBody");
   if (!table) return;
 
@@ -144,14 +143,20 @@ function addExpenseRow(label = '', amount = '', isFixed = false) {
     <td class="text-center align-middle">
       <input type="checkbox" class="form-check-input expense-fixed" ${isFixed ? "checked" : ""}>
     </td>
+    <td>
+      <input type="number" class="form-control expense-duration" min="1" max="36" value="${duration}" style="width:80px" title="Duration in months">
+    </td>
     <td class="text-center align-middle">
-      <button type="button" class="btn btn-danger btn-sm" onclick="this.closest('tr').remove(); updateChart();">X</button>
+      <button type="button" class="btn btn-danger btn-sm" onclick="this.closest('tr').remove(); updateChart(); checkBudgetIncrease();">X</button>
     </td>
   `;
 
-  // Update chart on any input
+  // Update chart and warning on any input
   row.querySelectorAll("input").forEach(input =>
-    input.addEventListener("input", updateChart)
+    input.addEventListener("input", () => {
+      updateChart();
+      checkBudgetIncrease();
+    })
   );
 
   // Handle percentage -> amount conversion
@@ -164,11 +169,75 @@ function addExpenseRow(label = '', amount = '', isFixed = false) {
     if (!isNaN(percent) && budget > 0) {
       amountInput.value = Math.round((percent / 100) * budget);
       updateChart();
+      checkBudgetIncrease();
     }
   });
 
   table.appendChild(row);
   updateChart();
+  checkBudgetIncrease();
+}
+
+// === Budget Increase Warning ===
+async function checkBudgetIncrease() {
+  const monthInput = document.getElementById("budgetMonth");
+  if (!monthInput) return;
+
+  const selectedMonthValue = monthInput.value;
+  if (!selectedMonthValue || !/^\d{4}-\d{2}$/.test(selectedMonthValue)) return;
+
+  // Get previous month
+  const [year, monthStr] = selectedMonthValue.split("-");
+  let month = parseInt(monthStr, 10);
+  let yearInt = parseInt(year, 10);
+
+  month -= 1;
+  if (month < 1) {
+    month = 12;
+    yearInt -= 1;
+  }
+
+  // Fetch previous month budget
+  try {
+    const res = await fetch(`../php/get_budget.php?month=${month}&year=${yearInt}`);
+    const result = await res.json();
+
+    if (!result.success || !Array.isArray(result.expenses)) {
+      document.getElementById("budgetWarningBox").classList.add("d-none");
+      return;
+    }
+
+    // Build previous month expense map
+    const prevMap = {};
+    result.expenses.forEach(exp => {
+      prevMap[exp.label] = parseFloat(exp.amount);
+    });
+
+    // Compare with current table
+    const warnings = [];
+    document.querySelectorAll(".expense-row").forEach(row => {
+      const label = row.querySelector(".expense-label")?.value.trim();
+      const amount = parseFloat(row.querySelector(".expense-amount")?.value || 0);
+      if (!label || !(label in prevMap)) return;
+      const prevAmount = prevMap[label];
+      if (prevAmount > 0) {
+        const diffPercent = ((amount - prevAmount) / prevAmount) * 100;
+        if (diffPercent > 5) {
+          warnings.push(`<strong>${label}</strong>: increased by ${diffPercent.toFixed(1)}% (${prevAmount} → ${amount})`);
+        }
+      }
+    });
+
+    const warningBox = document.getElementById("budgetWarningBox");
+    if (warnings.length) {
+      warningBox.innerHTML = `<i class="bi bi-exclamation-triangle-fill me-2"></i> <span>Warning: The following expenses increased by more than 5% compared to last month:</span><br><ul class="mb-0 mt-2"><li>${warnings.join("</li><li>")}</li></ul>`;
+      warningBox.classList.remove("d-none");
+    } else {
+      warningBox.classList.add("d-none");
+    }
+  } catch (err) {
+    document.getElementById("budgetWarningBox").classList.add("d-none");
+  }
 }
 
 // === Load Saved Budget ===
@@ -205,12 +274,12 @@ async function loadSavedBudget() {
 
       if (Array.isArray(result.expenses)) {
         result.expenses.forEach(exp => {
-          // Some backends use is_fixed, some use fixed
-          addExpenseRow(exp.label, exp.amount, exp.is_fixed || exp.fixed);
+          addExpenseRow(exp.label, exp.amount, exp.is_fixed || exp.fixed, exp.duration || 1);
         });
       }
 
       updateChart();
+      checkBudgetIncrease();
     } else {
       console.warn("No budget found for selected month.");
       const budgetInput = document.getElementById("monthlyBudget");
@@ -218,6 +287,7 @@ async function loadSavedBudget() {
       const table = document.getElementById("expenseTableBody");
       if (table) table.innerHTML = "";
       updateChart();
+      checkBudgetIncrease();
     }
   } catch (err) {
     console.error("Error loading saved budget:", err);
@@ -244,6 +314,7 @@ function setupCurrencySelector() {
     selectedCurrency = e.target.value;
     localStorage.setItem('selectedCurrency', selectedCurrency); // <-- Save to localStorage
     updateChart();
+    checkBudgetIncrease();
   });
 }
 
@@ -255,7 +326,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const monthInput = document.getElementById("budgetMonth");
 
   if (addBtn) addBtn.addEventListener("click", () => addExpenseRow());
-  if (budgetInput) budgetInput.addEventListener("input", updateChart);
+  if (budgetInput) budgetInput.addEventListener("input", () => {
+    updateChart();
+    checkBudgetIncrease();
+  });
 
   setupChartTypeSelector();
   setupCurrencySelector();
@@ -267,9 +341,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // Charger les données lorsque le mois change
-  // ...dans le DOMContentLoaded...
   if (monthInput) {
-    // Charger la valeur sauvegardée
     const savedMonth = localStorage.getItem("selectedBudgetMonth");
     if (savedMonth) monthInput.value = savedMonth;
 
@@ -286,7 +358,6 @@ document.addEventListener("DOMContentLoaded", () => {
   if (saveBudgetBtn) {
     saveBudgetBtn.addEventListener("click", async () => {
       const selectedMonthValue = monthInput?.value;
-      // Defensive: ensure value is in "YYYY-MM" format
       if (!selectedMonthValue || !/^\d{4}-\d{2}$/.test(selectedMonthValue)) {
         alert("Please select a valid month.");
         return;
@@ -304,9 +375,10 @@ document.addEventListener("DOMContentLoaded", () => {
         const label = row.querySelector(".expense-label")?.value;
         let amount = parseFloat(row.querySelector(".expense-amount")?.value || 0);
         const fixed = row.querySelector(".expense-fixed")?.checked || false;
+        const duration = parseInt(row.querySelector(".expense-duration")?.value || 1);
 
         if (label && amount > 0) {
-          expenses.push({ label, amount, fixed });
+          expenses.push({ label, amount, fixed, duration });
           if (fixed) fixedCount++;
         }
       });

@@ -53,20 +53,29 @@ try {
     $delete->execute([$userId, $month, $year]);
     error_log("DEBUG - Old expenses deleted for user_id=$userId, month=$month, year=$year");
 
-    // Insère les nouvelles dépenses
+    // Insère les nouvelles dépenses avec gestion de la durée
     $insert = $pdo->prepare("
-        INSERT INTO budget_expenses (user_id, label, amount, is_fixed, month, year)
-        VALUES (?, ?, ?, ?, ?, ?)
+        INSERT INTO budget_expenses (user_id, label, amount, is_fixed, month, year, duration)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
     ");
 
     foreach ($expenses as $exp) {
         $label = trim($exp['label'] ?? '');
         $amount = (int) ($exp['amount'] ?? 0);
         $fixed = isset($exp['fixed']) && $exp['fixed'] ? 1 : 0;
+        $duration = isset($exp['duration']) ? (int)$exp['duration'] : 1;
 
-        if ($label !== '' && $amount >= 0) {
-            $insert->execute([$userId, $label, $amount, $fixed, $month, $year]);
-            error_log("DEBUG - Inserted expense: label=$label, amount=$amount, fixed=$fixed, month=$month, year=$year");
+        for ($i = 0; $i < $duration; $i++) {
+            $targetMonth = $month + $i;
+            $targetYear = $year;
+            if ($targetMonth > 12) {
+                $targetMonth -= 12;
+                $targetYear++;
+            }
+            if ($label !== '' && $amount >= 0) {
+                // Save the initial duration for all months of this expense
+                $insert->execute([$userId, $label, $amount, $fixed, $targetMonth, $targetYear, $duration]);
+            }
         }
     }
 

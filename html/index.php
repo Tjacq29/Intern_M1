@@ -93,8 +93,8 @@ $isLoggedIn = isset($_SESSION['user_id']);
     <div class="card text-center shadow-sm">
       <div class="card-body">
         <h5 class="card-title" id="cardBudgetTitle">Budget Overview</h5>
-        <p class="card-text" id="cardBudgetText">Track and follow your expenses.</p>
-        <a href="budget.html" class="btn btn-primary" id="cardBudgetBtn">View Budget</a>
+        <p class="card-text" id="cardBudgetText">View the average expenses.</p>
+        <a href="dashboard.html" class="btn btn-primary" id="cardBudgetBtn">View Budget</a>
       </div>
     </div>
   </div>
@@ -135,6 +135,34 @@ $isLoggedIn = isset($_SESSION['user_id']);
         <p class="card-text" id="insightsText">Visualize your spending patterns with charts and graphs.</p>
         <a href="dashboard.html" class="btn btn-success" id="insightsBtn">View Insights</a>
       </div>
+    </div>
+  </div>
+</div>
+
+<div class="row justify-content-center mt-5">
+  <div class="col-lg-10">
+    <div class="how-to-use-box p-4 mb-4 shadow-sm rounded-4">
+      <div class="d-flex align-items-center mb-2">
+        <i class="bi bi-info-circle-fill text-primary fs-4 me-2"></i>
+        <span class="fw-bold fs-5" id="howToUseTitle">How to use this website?</span>
+      </div>
+      <ol class="mb-0 ps-3 how-to-use-list">
+        <li id="howToUseStep1">
+          <strong>Dashboard:</strong> Get an overview of your different types of expenses.
+        </li>
+        <li id="howToUseStep2">
+          <strong>Budget:</strong> Build your own monthly budget.
+        </li>
+        <li id="howToUseStep3">
+          <strong>Expenses:</strong> Track and add your daily expenses.
+        </li>
+        <li id="howToUseStep4">
+          <strong>Goals:</strong> At the end of the month, transfer your remaining money to your goals.
+        </li>
+        <li id="howToUseStep5">
+          <strong>Summary:</strong> See your annual spending and progress.
+        </li>
+      </ol>
     </div>
   </div>
 </div>

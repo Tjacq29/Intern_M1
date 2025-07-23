@@ -95,7 +95,6 @@
         <label for="currencySelect" class="form-label mb-0" id="labelCurrency">Currency:</label>
         <select id="currencySelect" class="form-select w-auto">
           <option value="€">€</option>
-          
           <option value="Rp">Rp</option>
         </select>
       </div>
@@ -108,11 +107,15 @@
             <th id="thAmount">Amount</th>
             <th id="thPercentage">Percentage</th>
             <th id="thFixed">Fixed?</th>
+            <th id="thDuration">Duration</th>
             <th id="thAction">Action</th>
           </tr>
         </thead>
         <tbody id="expenseTableBody"></tbody>
       </table>
+
+      <!-- Warning box for budget increase -->
+      <div id="budgetWarningBox" class="alert alert-danger d-none mt-3"></div>
 
       <div class="text-center my-4">
         <button id="addExpenseBtn" class="btn btn-outline-primary">Add Expense</button>

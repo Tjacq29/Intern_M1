@@ -569,3 +569,17 @@ select.form-select {
     padding: 0 0.5rem;
   }
 }
+.how-to-use-box {
+  background: #f8fbff;
+  border: 1.5px solid #d0e6ff;
+  color: #234;
+}
+
+.how-to-use-list li {
+  margin-bottom: 0.5em;
+  font-size: 1.08em;
+}
+
+.how-to-use-box .bi-info-circle-fill {
+  vertical-align: -0.15em;
+}

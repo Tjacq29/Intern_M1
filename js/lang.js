@@ -14,7 +14,7 @@ const translations = {
     welcomeTitle: "Welcome to Student Finance Assistant",
     welcomeDesc: "Manage your finances, track expenses, and achieve your financial goals with ease.",
     cardBudgetTitle: "Budget Overview",
-    cardBudgetText: "Track and follow your expenses.",
+    cardBudgetText: "View the average expenses.",
     cardBudgetBtn: "View Budget",
     cardExpenseTitle: "Expense Tracker",
     cardExpenseText: "Track and follow your expenses.",
@@ -28,6 +28,13 @@ const translations = {
     insightsTitle: "Insights",
     insightsText: "Visualize your spending patterns with charts and graphs.",
     insightsBtn: "View Insights",
+    howToUseTitle: "How to use this website?",
+    howToUseStep1: "Start by visiting the <strong>Dashboard</strong> to get an overview of the different types of expenses.",
+    howToUseStep2: "Go to the <strong>Budget</strong> page to build your own monthly budget.",
+    howToUseStep3: "Use the <strong>Expenses</strong> page to track and add your daily expenses.",
+    howToUseStep4: "At the end of the month, transfer your remaining money to your <strong>Goals</strong>.",
+    howToUseStep5: "Check the <strong>Summary</strong> page to see your annual spending and progress.",
+
 
     dashboardTitle: "Student Cost Dashboard",
     labelUniversity: "University",
@@ -130,6 +137,12 @@ const translations = {
     insightsTitle: "Analyses",
     insightsText: "Visualisez vos habitudes de dépenses avec des graphiques.",
     insightsBtn: "Voir les analyses",
+    howToUseTitle: "Comment utiliser ce site ?",
+    howToUseStep1: "Commencez par visiter le <strong>Tableau de bord</strong> pour avoir un aperçu des différents types de dépenses.",
+    howToUseStep2: "Allez sur la page <strong>Budget</strong> pour construire votre budget mensuel.",
+    howToUseStep3: "Utilisez la page <strong>Dépenses</strong> pour suivre et ajouter vos dépenses quotidiennes.",
+    howToUseStep4: "À la fin du mois, transférez votre argent restant vers vos <strong>Objectifs</strong>.",
+    howToUseStep5: "Consultez la page <strong>Résumé</strong> pour voir votre bilan annuel et vos progrès.",
 
     dashboardTitle: "Tableau des Coûts Étudiants",
     labelUniversity: "Université",
@@ -232,6 +245,12 @@ const translations = {
     insightsTitle: "Wawasan",
     insightsText: "Visualisasikan pola pengeluaran Anda dengan grafik.",
     insightsBtn: "Lihat Wawasan",
+    ToUseTitle: "Bagaimana cara menggunakan situs ini?",
+    howToUseStep1: "Mulailah dengan mengunjungi <strong>Dasbor</strong> untuk melihat gambaran berbagai jenis pengeluaran.",
+    howToUseStep2: "Buka halaman <strong>Anggaran</strong> untuk membuat anggaran bulanan Anda.",
+    howToUseStep3: "Gunakan halaman <strong>Pengeluaran</strong> untuk mencatat dan menambah pengeluaran harian Anda.",
+    howToUseStep4: "Di akhir bulan, transfer sisa uang Anda ke <strong>Tujuan</strong>.",
+    howToUseStep5: "Lihat halaman <strong>Ringkasan</strong> untuk melihat pengeluaran tahunan dan perkembangan Anda.",
 
     dashboardTitle: "Dasbor Biaya Mahasiswa",
     labelUniversity: "Universitas",
@@ -312,9 +331,15 @@ function setLanguage(lang) {
 
   Object.entries(strings).forEach(([id, text]) => {
     const el = document.getElementById(id);
-    if (el) el.textContent = text;
-    // Pour le <title>
-    if (id === "summaryPageTitle" && document.title) document.title = text;
+    if (el) {
+      if (id.startsWith("howToUseStep") || id === "howToUseTitle") {
+        el.innerHTML = text; // autorise HTML
+      } else {
+        el.textContent = text;
+      }
+      // Pour le <title>
+      if (id === "summaryPageTitle" && document.title) document.title = text;
+    }
   });
 
   localStorage.setItem('lang', lang);

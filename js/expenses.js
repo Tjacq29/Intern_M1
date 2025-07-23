@@ -119,6 +119,7 @@ function renderTable() {
   });
 }
 
+// --- MODIFIEE : renderChart tient compte des transferts "Goal Transfer Remaining" ---
 async function renderChart() {
   const [year, monthStr] = monthInput.value.split("-");
   const month = parseInt(monthStr, 10);
@@ -130,25 +131,52 @@ async function renderChart() {
     .filter(opt => opt.value)
     .map(opt => opt.value);
 
+  // Calcule les dépenses par catégorie (hors Goal Transfer Remaining)
   const spentPerCategory = {};
-  expenses
-    .filter(e => !e.category.startsWith("Goal Transfer")) 
-    .forEach(e => {
-      spentPerCategory[e.category] = (spentPerCategory[e.category] || 0) + Number(e.amount);
-    });
-
-  const spent = allLabels.map(cat => spentPerCategory[cat] || 0);
   const remaining = allLabels.map(cat => {
     const budget = budgets[cat] || 0;
-    const spentVal = spentPerCategory[cat] || 0;
-    return Math.max(budget - spentVal, 0);
+    return budget;
+  });
+
+  // Ajoute les dépenses classiques
+  expenses.forEach(e => {
+    if (!e.category.startsWith("Goal Transfer")) {
+      spentPerCategory[e.category] = (spentPerCategory[e.category] || 0) + Number(e.amount);
+    }
+  });
+
+  // Soustrait les dépenses classiques du remaining
+  for (let i = 0; i < allLabels.length; i++) {
+    const cat = allLabels[i];
+    remaining[i] -= spentPerCategory[cat] || 0;
+    if (remaining[i] < 0) remaining[i] = 0;
+  }
+
+  // --- Correction : répartir CHAQUE transfert "Goal Transfer Remaining" ---
+  const spentAdjusted = allLabels.map(cat => spentPerCategory[cat] || 0);
+  const remainingAdjusted = [...remaining];
+
+  expenses.forEach(e => {
+    if (e.category === "Goal Transfer Remaining") {
+      let toTransfer = Number(e.amount);
+      for (let i = 0; i < allLabels.length; i++) {
+        if (toTransfer <= 0) break;
+        const available = remainingAdjusted[i];
+        if (available > 0) {
+          const take = Math.min(available, toTransfer);
+          spentAdjusted[i] += take;
+          remainingAdjusted[i] -= take;
+          toTransfer -= take;
+        }
+      }
+    }
   });
 
   const filtered = allLabels
     .map((cat, i) => ({
       cat,
-      spent: spent[i],
-      remaining: remaining[i]
+      spent: spentAdjusted[i],
+      remaining: remainingAdjusted[i]
     }))
     .filter(item => item.spent > 0 || item.remaining > 0);
 
@@ -203,7 +231,6 @@ async function renderChart() {
           anchor: "end",
           align: "start",
           offset: -2,
-          // --- MODIF : utilise formatCurrency ---
           formatter: (value) => value > 0 ? formatCurrency(value) : "",
           clamp: true
         }
@@ -264,7 +291,38 @@ form.addEventListener("submit", async e => {
     console.error(err);
   }
 });
+function transferFromRemainingToGoals(amountToTransfer) {
+  // Get current chart data
+  if (!chartInstance) return;
+  const chartData = chartInstance.data;
+  const labels = chartData.labels;
+  const remainingDataset = chartData.datasets.find(ds => ds.label === "Remaining");
+  const spentDataset = chartData.datasets.find(ds => ds.label === "Spent");
 
+  if (!remainingDataset || !spentDataset) return;
+
+  let remaining = [...remainingDataset.data];
+  let spent = [...spentDataset.data];
+
+  let toTransfer = amountToTransfer;
+
+  // Take from categories in order
+  for (let i = 0; i < labels.length; i++) {
+    if (toTransfer <= 0) break;
+    let available = remaining[i];
+    if (available > 0) {
+      let take = Math.min(available, toTransfer);
+      spent[i] += take;
+      remaining[i] -= take;
+      toTransfer -= take;
+    }
+  }
+
+  // Update chart data
+  remainingDataset.data = remaining;
+  spentDataset.data = spent;
+  chartInstance.update();
+}
 monthInput.addEventListener("change", async () => {
   await fetchAllCategories();
   const [year, monthStr] = monthInput.value.split("-");
@@ -550,7 +608,11 @@ document.getElementById("transferToGoalBtn").addEventListener("click", async () 
       bootstrap.Modal.getInstance(document.getElementById("transferModal")).hide();
       const [year, monthStr] = document.getElementById("trackingMonth").value.split("-");
       await fetchExpenses(parseInt(monthStr, 10), parseInt(year, 10));
+      if (typeof fetchAndDisplayGoalTransfers === "function") {
+        await fetchAndDisplayGoalTransfers();
+      }
       if (typeof refreshGoalsProgress === "function") refreshGoalsProgress();
+      if (typeof renderChart === "function") await renderChart();
     } else {
       alert(data.message || "Error during transfer.");
     }
@@ -607,12 +669,14 @@ async function fetchAndDisplayGoalTransfers() {
         const [year, monthStr] = document.getElementById("trackingMonth").value.split("-");
         await fetchExpenses(parseInt(monthStr, 10), parseInt(year, 10));
         if (typeof refreshGoalsProgress === "function") refreshGoalsProgress();
+        if (typeof renderChart === "function") await renderChart();
       } else {
         alert(data.message || "Error deleting transfer.");
       }
     });
   });
 }
+
 // Appelle cette fonction au chargement et quand le mois change ou après un transfert
 document.addEventListener("DOMContentLoaded", fetchAndDisplayGoalTransfers);
 document.getElementById("trackingMonth").addEventListener("change", fetchAndDisplayGoalTransfers);
@@ -629,6 +693,7 @@ document.addEventListener("DOMContentLoaded", function() {
         if (typeof fetchAndDisplayGoalTransfers === "function") {
           await fetchAndDisplayGoalTransfers();
         }
+        if (typeof renderChart === "function") await renderChart();
       }
     };
   }
